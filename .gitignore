@@ -1,0 +1,40 @@
+# Python slop
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+env/
+venv/
+.venv/
+pip-log.txt
+pip-delete-this-directory.txt
+.toast
+.cache
+
+# Application Data
+outputs/
+temp/
+*.log
+
+# 🧪 BIG SLOP (Models)
+# We do NOT want to push 30GB of weights to GitHub
+models/
+*.safetensors
+*.ckpt
+*.bin
+*.pth
+
+# IDE & OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Agent Metadata
+.gemini/
+prd.json
+progress.txt
+
+# Secrets
+.env

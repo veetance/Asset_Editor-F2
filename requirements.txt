@@ -1,0 +1,25 @@
+# ASSET EDITOR Dependencies
+
+# Core
+fastapi>=0.109.0
+uvicorn[standard]>=0.27.0
+python-multipart>=0.0.6
+
+# AI Models & Optimization
+torch>=2.2.0 --index-url https://download.pytorch.org/whl/cu121
+diffusers>=0.27.0
+transformers>=4.40.0
+accelerate>=0.29.0
+safetensors>=0.4.0
+xformers>=0.0.25  # Cross-attention optimization
+bitsandbytes>=0.43.0  # Quantization support (4bit/8bit)
+optimum>=1.18.0   # Optimization toolkit
+peft>=0.10.0      # Parameter-efficient fine-tuning
+
+# Image Processing
+Pillow>=10.0.0
+opencv-python>=4.8.0
+
+# HuggingFace
+huggingface-hub>=0.22.0
+protoc-gen-openapiv2>=0.1.0
