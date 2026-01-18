@@ -1,25 +1,23 @@
-# ASSET EDITOR Dependencies
-
-# Core
+# ASSET EDITOR - High-Octane Dependencies
 fastapi>=0.109.0
 uvicorn[standard]>=0.27.0
 python-multipart>=0.0.6
 
-# AI Models & Optimization
-torch>=2.2.0 --index-url https://download.pytorch.org/whl/cu121
-diffusers>=0.27.0
-transformers>=4.40.0
-accelerate>=0.29.0
+# AI Core - Bleeding Edge
+torch>=2.4.0
+# Qwen-Layered & FLUX.2 require latest diffusers source
+git+https://github.com/huggingface/diffusers.git
+transformers>=4.45.0
+accelerate>=0.34.0
 safetensors>=0.4.0
-xformers>=0.0.25  # Cross-attention optimization
-bitsandbytes>=0.43.0  # Quantization support (4bit/8bit)
-optimum>=1.18.0   # Optimization toolkit
-peft>=0.10.0      # Parameter-efficient fine-tuning
+xformers>=0.0.28
+bitsandbytes>=0.43.3
+optimum>=1.22.0
+torchao>=0.4.0
 
-# Image Processing
+# Image & Layering Specialists
 Pillow>=10.0.0
 opencv-python>=4.8.0
-
-# HuggingFace
-huggingface-hub>=0.22.0
-protoc-gen-openapiv2>=0.1.0
+psd-tools>=1.9.0
+python-pptx>=0.6.21
+huggingface-hub>=0.25.0

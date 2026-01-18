@@ -1,0 +1,81 @@
+/* Layout */
+.app {
+    display: grid;
+    grid-template-rows: auto 1fr;
+    height: 100vh;
+}
+
+.header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: var(--space-sm) var(--space-lg);
+    padding-right: var(--space-sm);
+    background: var(--bg-primary);
+    border-bottom: 1px solid var(--border);
+}
+
+.logo {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    font-family: var(--font-header);
+    font-weight: 700;
+    font-size: var(--text-md);
+    letter-spacing: -0.02em;
+    color: var(--text-primary) !important;
+    opacity: 0.5;
+}
+
+.logo svg {
+    width: 20px;
+    height: 20px;
+    color: #e5e5e5 !important;
+    transition: none;
+}
+
+/* Focus Mode Logic */
+.app.focus-mode .header,
+.app.focus-mode .panel-left,
+.app.focus-mode .panel-right {
+    display: none;
+}
+
+.app.focus-mode .app {
+    grid-template-rows: 1fr;
+}
+
+.app.focus-mode .main {
+    grid-template-columns: 1fr;
+}
+
+.main {
+    display: grid;
+    grid-template-columns: 280px 1fr 240px;
+    overflow: hidden;
+}
+
+/* Tabs base */
+.tabs {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+}
+
+.tab {
+    padding: var(--space-md) var(--space-lg);
+    font-size: var(--text-sm);
+    font-weight: 500;
+    color: var(--text-secondary);
+    background: transparent;
+    border: none;
+    border-bottom: 2px solid transparent;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.tab:hover {
+    color: var(--text-primary);
+    background: var(--bg-glass);
+}
