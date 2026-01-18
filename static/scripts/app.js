@@ -70,6 +70,68 @@ const App = {
         document.getElementById('decomposeBtn').addEventListener('click', () => this.decompose());
         document.getElementById('editBtn').addEventListener('click', () => this.applyEdit());
         document.getElementById('generateBtn').addEventListener('click', () => this.generate());
+
+        // Model Picker
+        this.initModelPicker();
+    },
+
+    initModelPicker() {
+        const picker = document.getElementById('modelPicker');
+        const trigger = document.getElementById('pickerTrigger');
+        const dropdown = document.getElementById('pickerDropdown');
+
+        if (!picker || !trigger) return;
+
+        trigger.addEventListener('click', (e) => {
+            e.stopPropagation();
+            picker.classList.toggle('active');
+        });
+
+        document.addEventListener('click', () => {
+            picker.classList.remove('active');
+        });
+
+        dropdown.addEventListener('click', (e) => {
+            e.stopPropagation();
+        });
+
+        document.querySelectorAll('.btn-picker').forEach(btn => {
+            btn.addEventListener('click', async () => {
+                const model = btn.dataset.model;
+                const isEject = btn.textContent.trim() === 'EJECT';
+                await this.executeModelAction(model, isEject, btn);
+            });
+        });
+    },
+
+    async executeModelAction(model, isEject, btn) {
+        const vramText = document.querySelector('#vramStatus .vram-text');
+        const originalText = btn.textContent;
+        const picker = document.getElementById('modelPicker');
+
+        btn.disabled = true;
+        btn.textContent = '...';
+
+        try {
+            // Close picker immediately for better UX
+            picker.classList.remove('active');
+
+            if (isEject) {
+                if (vramText) vramText.textContent = `VRAM: Ejecting...`;
+                await API.offload();
+                this.showStatus('Model ejected to CPU');
+            } else {
+                if (vramText) vramText.textContent = `VRAM: Loading ${model.toUpperCase()}...`;
+                await API.preload(model);
+                this.showStatus(`${model.toUpperCase()} energized`);
+            }
+            await this.checkHealth();
+        } catch (err) {
+            console.error('[DEUS] Manifold failure:', err);
+            this.showStatus('Action failure', 'error');
+        } finally {
+            btn.disabled = false;
+        }
     },
 
     bindSlider(sliderId, valueId, formatter = v => v) {
@@ -137,7 +199,8 @@ const App = {
             // Auto-switch to edit mode
             setTimeout(() => this.setMode('edit'), 500);
         } catch (err) {
-            this.showStatus(err.message, 'error');
+            console.error('[DEUS] Decompose failure:', err);
+            this.showStatus('Deconstruction failed', 'error');
         }
     },
 
@@ -174,7 +237,8 @@ const App = {
             this.saveToHistory('edit', prompt, result.image);
             this.showStatus('Edit applied');
         } catch (err) {
-            this.showStatus(err.message, 'error');
+            console.error('[DEUS] Edit failure:', err);
+            this.showStatus('Edit failed', 'error');
         }
     },
 
@@ -188,13 +252,14 @@ const App = {
         const width = parseInt(document.getElementById('genWidth').value);
         const height = parseInt(document.getElementById('genHeight').value);
         const guidance = parseFloat(document.getElementById('genGuidance').value);
+        const sampler = document.getElementById('genSampler').value;
 
         this.showStatus('Generating image...', 'loading');
         ComparisonSlider.disable();
         GenerationAnim.start();
 
         try {
-            const result = await API.txt2img(prompt, width, height, guidance);
+            const result = await API.txt2img(prompt, width, height, guidance, sampler);
 
             CanvasStack.clear();
             await CanvasStack.addLayer(result.image, 0);
@@ -202,7 +267,8 @@ const App = {
             this.saveToHistory('generate', prompt, result.image);
             this.showStatus('Image generated');
         } catch (err) {
-            this.showStatus(err.message, 'error');
+            console.error('[DEUS] Generation failure:', err);
+            this.showStatus('Generation failed', 'error');
         }
     },
 
@@ -258,15 +324,69 @@ const App = {
     async checkHealth() {
         try {
             const health = await API.health();
-            const vramEl = document.getElementById('vramStatus');
+            const vramText = document.querySelector('#vramStatus .vram-text');
+            const vramProgress = document.getElementById('vramProgress');
+            const pickerButtons = document.querySelectorAll('.btn-picker');
+
             if (health.vram) {
-                vramEl.textContent = `VRAM: ${health.vram.allocated_gb}GB | ${health.vram.current_model || 'idle'}`;
+                const currentModel = health.vram.current_model;
+
+                // Get friendly name
+                let modelInfo = '';
+                if (currentModel) {
+                    const item = document.querySelector(`.picker-item[data-model="${currentModel}"] .model-name`);
+                    const modelLabel = item ? item.textContent : currentModel.toUpperCase();
+                    modelInfo = ` | ${modelLabel}`;
+                }
+
+                vramText.textContent = `VRAM: ${health.vram.allocated_gb}GB / 16GB${modelInfo}`;
+
+                // Update Progress Bar
+                const totalVram = 16.0;
+                const percent = Math.min((health.vram.allocated_gb / totalVram) * 100, 100);
+                if (vramProgress) {
+                    vramProgress.style.width = `${percent}%`;
+                }
+
+                pickerButtons.forEach(btn => {
+                    const modelId = btn.dataset.model;
+                    if (currentModel === modelId) {
+                        btn.textContent = 'EJECT';
+                        btn.classList.add('btn-active');
+                    } else {
+                        btn.textContent = 'LOAD';
+                        btn.classList.remove('btn-active');
+                    }
+                });
+
+                if (currentModel) {
+                    const item = document.querySelector(`.picker-item[data-model="${currentModel}"] .model-name`);
+                    if (item) {
+                        document.getElementById('currentModelName').textContent = item.textContent;
+                    }
+                }
             }
         } catch (err) {
-            document.getElementById('vramStatus').textContent = 'VRAM: offline';
+            const vramText = document.querySelector('#vramStatus .vram-text');
+            if (vramText) vramText.textContent = 'VRAM: offline';
         }
-    }
+    },
 };
 
 // Initialize on DOM ready
-document.addEventListener('DOMContentLoaded', () => App.init());
+document.addEventListener('DOMContentLoaded', async () => {
+    App.init();
+
+    // Check initial health
+    await App.checkHealth();
+
+    // Hide splash screen
+    const splash = document.getElementById('splash');
+    if (splash) {
+        // Short delay for aesthetics
+        setTimeout(() => splash.classList.add('hidden'), 500);
+    }
+
+    // Continue health polling
+    setInterval(() => App.checkHealth(), 10000);
+});

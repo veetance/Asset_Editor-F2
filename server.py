@@ -29,14 +29,6 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Routes
-app.include_router(decompose_router, prefix="/api", tags=["decompose"])
-app.include_router(generate_router, prefix="/api", tags=["generate"])
-
-# Static files
-app.mount("/outputs", StaticFiles(directory=str(OUTPUTS_DIR)), name="outputs")
-app.mount("/", StaticFiles(directory=str(STATIC_DIR), html=True), name="static")
-
 
 @app.get("/api/health")
 async def health():
@@ -48,6 +40,47 @@ async def health():
     }
 
 
+@app.post("/api/preload")
+async def preload_model(model: str = "flux"):
+    """Preload a model into GPU memory."""
+    from model_manager import swapper
+    try:
+        if model == "flux":
+            swapper.load_flux()
+        elif model == "qwen":
+            swapper.load_qwen()
+        return {
+            "status": "loaded",
+            "model": model,
+            "vram": swapper.get_vram_usage()
+        }
+    except Exception as e:
+        return {"status": "error", "error": str(e)}
+
+
+@app.post("/api/offload")
+async def offload_models():
+    """Offload all models from GPU to CPU."""
+    from model_manager import swapper
+    try:
+        swapper._offload_current()
+        return {
+            "status": "offloaded",
+            "vram": swapper.get_vram_usage()
+        }
+    except Exception as e:
+        return {"status": "error", "error": str(e)}
+
+
+# Routes
+app.include_router(decompose_router, prefix="/api", tags=["decompose"])
+app.include_router(generate_router, prefix="/api", tags=["generate"])
+
+# Static files
+app.mount("/outputs", StaticFiles(directory=str(OUTPUTS_DIR)), name="outputs")
+app.mount("/", StaticFiles(directory=str(STATIC_DIR), html=True), name="static")
+
+
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run("server:app", host="0.0.0.0", port=8000, reload=True)
+    uvicorn.run("server:app", host="127.0.0.1", port=8000, reload=True)

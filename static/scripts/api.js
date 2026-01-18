@@ -30,12 +30,13 @@ const API = {
     });
   },
 
-  async txt2img(prompt, width = 1024, height = 1024, guidance = 4.0) {
+  async txt2img(prompt, width = 1024, height = 1024, guidance = 0.0, sampler = 'euler') {
     const formData = new FormData();
     formData.append('prompt', prompt);
     formData.append('width', width);
     formData.append('height', height);
     formData.append('guidance', guidance);
+    formData.append('sampler', sampler);
 
     return this.request('/txt2img', {
       method: 'POST',
@@ -74,5 +75,17 @@ const API = {
 
   async health() {
     return this.request('/health');
+  },
+
+  async preload(model = 'flux') {
+    return this.request('/preload?model=' + model, {
+      method: 'POST'
+    });
+  },
+
+  async offload() {
+    return this.request('/offload', {
+      method: 'POST'
+    });
   }
 };

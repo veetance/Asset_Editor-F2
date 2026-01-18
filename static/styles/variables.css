@@ -7,6 +7,10 @@
   --bg-elevated: rgba(40, 40, 40, 0.8);
   --bg-glass: rgba(255, 255, 255, 0.03);
 
+  /* Layout Dimensions */
+  --panel-left-width: 280px;
+  --panel-right-width: 240px;
+
   /* Text */
   --text-primary: #e5e5e5;
   --text-secondary: #888888;
@@ -64,25 +68,33 @@
   /* Transitions */
   --transition-fast: 120ms ease;
   --transition-base: 200ms ease;
+
+  /* Interactive FX */
+  --mouse-x: 50%;
+  --mouse-y: 50%;
 }
 
 /* Mode-specific accent overrides */
 [data-mode="generate"] {
   --accent: var(--color-generate);
   --accent-glow: var(--color-generate-glow);
+  --accent-surface: rgba(99, 102, 241, 0.5);
 }
 
 [data-mode="stylize"] {
   --accent: var(--color-stylize);
   --accent-glow: var(--color-stylize-glow);
+  --accent-surface: rgba(236, 72, 153, 0.5);
 }
 
 [data-mode="decompose"] {
   --accent: var(--color-decompose);
   --accent-glow: var(--color-decompose-glow);
+  --accent-surface: rgba(16, 185, 129, 0.5);
 }
 
 [data-mode="edit"] {
   --accent: var(--color-edit);
   --accent-glow: var(--color-edit-glow);
+  --accent-surface: rgba(245, 158, 11, 0.5);
 }

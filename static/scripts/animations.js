@@ -15,7 +15,7 @@ const Splash = {
 
         if (this.element && this.layers.length) {
             this.startAnimation();
-            setTimeout(() => this.hide(), this.duration);
+            // Note: Splash hide is now controlled by app.js after model preload
         }
     },
 
@@ -122,7 +122,23 @@ const GenerationAnim = {
     }
 };
 
+const InteractiveFX = {
+    init() {
+        document.addEventListener('mousemove', (e) => {
+            const btns = document.querySelectorAll('.btn, .btn-compact');
+            btns.forEach(btn => {
+                const rect = btn.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                btn.style.setProperty('--mouse-x', `${x}px`);
+                btn.style.setProperty('--mouse-y', `${y}px`);
+            });
+        });
+    }
+};
+
 document.addEventListener('DOMContentLoaded', () => {
     Splash.init();
     GenerationAnim.init();
+    InteractiveFX.init();
 });

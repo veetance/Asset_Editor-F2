@@ -120,10 +120,39 @@ const PromptBank = {
             return [...prompts].sort(() => Math.random() - 0.5);
         }
         return [];
+    },
+
+    // Handle Space to Autocomplete
+    handleSpace(e) {
+        if (e.code === 'Space') {
+            const activeEl = document.activeElement;
+            // Only trigger for prompt textareas that are empty
+            if (activeEl.tagName === 'TEXTAREA' && activeEl.classList.contains('textarea')) {
+                if (activeEl.value === '' && activeEl.placeholder) {
+                    // STOP SPACE FROM BEING ADDED AS NORMAL INPUT
+                    e.preventDefault();
+                    e.stopImmediatePropagation();
+
+                    const suggestion = activeEl.placeholder;
+                    activeEl.value = suggestion;
+
+                    // Force re-shuffling of placeholder for next use if they clear it
+                    this.init();
+
+                    // Visual feedback
+                    activeEl.style.transition = 'background 0.2s, color 0.2s';
+                    activeEl.style.background = 'rgba(129, 140, 248, 0.2)';
+                    activeEl.style.color = '#ffffff';
+                    setTimeout(() => activeEl.style.background = '', 300);
+                }
+            }
+        }
     }
 };
 
 // Initialize on DOM ready
 document.addEventListener('DOMContentLoaded', () => {
     PromptBank.init();
+    // Global listener for Space autocompletion (when empty)
+    document.addEventListener('keydown', (e) => PromptBank.handleSpace(e));
 });

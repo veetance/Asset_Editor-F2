@@ -10,6 +10,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@200..900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles/main.css">
   <link rel="stylesheet" href="styles/animations.css">
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
 </head>
 
 <body>
@@ -38,17 +39,38 @@
       </div>
     </div>
   </div>
-
   <div class="app" data-mode="generate">
-    <!-- Header - Logo and VRAM only -->
     <header class="header">
       <div class="logo">
-        <svg viewBox="0 0 24 24" fill="currentColor">
-          <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" />
+        <svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M16 2L2 9L16 16L30 9L16 2Z" fill="currentColor" stroke="none" />
+          <path d="M2 16L16 23L30 16" stroke-linecap="round" stroke-linejoin="round" />
+          <path d="M2 23L16 30L30 23" stroke-linecap="round" stroke-linejoin="round" opacity="0.5" />
         </svg>
         ASSET EDITOR
       </div>
-      <div id="vramStatus" class="status">VRAM: --</div>
+      <div class="model-picker" id="modelPicker">
+        <div class="picker-trigger" id="pickerTrigger">
+          <span id="currentModelName">FLUX-KLEIN</span>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12">
+            <path d="m6 9 6 6 6-6" />
+          </svg>
+        </div>
+        <div class="picker-dropdown" id="pickerDropdown">
+          <div class="picker-item" data-model="flux">
+            <span class="model-name">FLUX-KLEIN</span>
+            <button class="btn-picker" data-model="flux">LOAD</button>
+          </div>
+          <div class="picker-item" data-model="qwen">
+            <span class="model-name">Qwen-Image-Layered</span>
+            <button class="btn-picker" data-model="qwen">LOAD</button>
+          </div>
+        </div>
+      </div>
+      <div id="vramStatus" class="status">
+        <div class="vram-progress" id="vramProgress"></div>
+        <span class="vram-text">VRAM: --</span>
+      </div>
     </header>
 
     <!-- Main -->
@@ -83,12 +105,23 @@
             <div class="field">
               <label class="field-label">Guidance</label>
               <div class="slider-wrap">
-                <input type="range" class="slider" id="genGuidance" min="1" max="10" step="0.5" value="4">
-                <span class="slider-value" id="genGuidanceValue">4.0</span>
+                <input type="range" class="slider" id="genGuidance" min="0" max="10" step="0.5" value="0">
+                <span class="slider-value" id="genGuidanceValue">0.0</span>
               </div>
               <div id="genGuidanceHint" class="guidance-hint">
-                <span class="guidance-tip">Balanced:</span> Standard quality and adherence.
+                <span class="guidance-tip">Schnell Mode:</span> FLUX.2-Klein is distilled, guidance=0 recommended.
               </div>
+            </div>
+            <div class="field">
+              <label class="field-label">Sampler</label>
+              <select class="select" id="genSampler">
+                <option value="euler" selected>Euler</option>
+                <option value="euler_a">Euler Ancestral</option>
+                <option value="dpm++_2m">DPM++ 2M</option>
+                <option value="dpm++_2m_karras">DPM++ 2M Karras</option>
+                <option value="ddim">DDIM</option>
+                <option value="lms">LMS</option>
+              </select>
             </div>
           </div>
 
@@ -147,6 +180,16 @@
                 <span class="slider-value" id="editStrengthValue">75%</span>
               </div>
             </div>
+            <div class="field">
+              <label class="field-label">Preprocessor</label>
+              <select class="select" id="editPreprocessor">
+                <option value="none" selected>None</option>
+                <option value="canny">Canny Edge</option>
+                <option value="blur">Gaussian Blur</option>
+                <option value="sharpen">Sharpen</option>
+                <option value="grayscale">Grayscale</option>
+              </select>
+            </div>
           </div>
 
           <!-- Stylize Mode -->
@@ -177,6 +220,16 @@
                 <input type="range" class="slider" id="styleStrength" min="0" max="100" value="70">
                 <span class="slider-value" id="styleStrengthValue">70%</span>
               </div>
+            </div>
+            <div class="field">
+              <label class="field-label">Content Preprocessor</label>
+              <select class="select" id="stylizePreprocessor">
+                <option value="none" selected>None</option>
+                <option value="canny">Canny Edge</option>
+                <option value="blur">Gaussian Blur</option>
+                <option value="sharpen">Sharpen</option>
+                <option value="grayscale">Grayscale</option>
+              </select>
             </div>
           </div>
 
@@ -233,14 +286,14 @@
     </main>
   </div>
 
-  <script src="scripts/api.js"></script>
-  <script src="scripts/canvas-stack.js"></script>
-  <script src="scripts/masking.js"></script>
-  <script src="scripts/animations.js"></script>
-  <script src="scripts/prompts.js"></script>
-  <script src="scripts/viewport.js"></script>
-  <script src="scripts/comparison.js"></script>
-  <script src="scripts/app.js"></script>
+  <script src="scripts/api.js?v=2"></script>
+  <script src="scripts/canvas-stack.js?v=2"></script>
+  <script src="scripts/masking.js?v=2"></script>
+  <script src="scripts/animations.js?v=2"></script>
+  <script src="scripts/prompts.js?v=2"></script>
+  <script src="scripts/viewport.js?v=2"></script>
+  <script src="scripts/comparison.js?v=2"></script>
+  <script src="scripts/app.js?v=2"></script>
 </body>
 
 </html>

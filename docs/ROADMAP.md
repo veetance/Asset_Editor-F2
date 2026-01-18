@@ -1,59 +1,30 @@
-# ASSET EDITOR - Roadmap 🦾✨
+# 🗺️ VEETANCE ASSET EDITOR: EVOLUTION ROADMAP
 
-## ✅ Completed
+## ✅ PHASE 1-3: FOUNDATION & INTERFACE
+- [x] High-fidelity Figma-style viewport.
+- [x] Dual-Engine VRAM Swapper logic.
+- [x] Ghost-Linkage Protocol (External assets).
 
-### Phase 0: Foundation
-- [x] Project structure created
-- [x] `model_manager.py` - VRAM Swapper (Singleton)
-- [x] `server.py` - FastAPI structure with static mounting
-- [x] `requirements.txt` - High-Octane Speed dependencies (xformers, torchao, gguf)
+## ✅ PHASE 4: WEIGHT INJECTION (COMPLETE)
+- [x] **FLUX Manifold**: Injected Unsloth GGUF Q8_0 (~10GB).
+- [x] **Qwen Manifold**: Injected Q5_0 GGUF (~12.3GB) + VAE.
+- [x] **Neural Auto-Complete**: Space-bar prompt injection (e.code fix).
+- [x] **CUDA Fix**: Reinstalled PyTorch 2.9.1+cu128 (was CPU-only).
+- [x] **CUDA Verified**: torch.cuda.is_available() = True 🔥
 
-### Phase 1: Backend Endpoints
-- [x] `/api/decompose` - Qwen-Image-Layered manifold
-- [x] `/api/txt2img` - FLUX.2 text-to-image (Multi-format)
-- [x] `/api/img2img` - FLUX.2 image-to-image
-- [x] `/api/inpaint` - Mask-aware synthesis
-- [x] `/api/health` - VRAM Telemetry
+## 🟨 PHASE 5: RUNTIME VALIDATION (ACTIVE)
+- [ ] First Light: Successful FLUX.2 generation at 1024px.
+    - ⚠️ **BLOCKER**: Persistent `black-forest-labs/FLUX.2-dev` HF lookup error despite local GGUF injection.
+    - **Error**: `txt2img failed: black-forest-labs/FLUX.2-dev is not a local folder...`
+- [ ] Layer Extraction: Qwen deconstruction of source image.
+- [ ] VRAM Swap: Benchmark CPU↔GPU handoff between models.
+- [ ] Health Monitor: VRAM status polling live in UI.
 
-### Phase 2: Frontend & Architecture
-- [x] 3-column Figma-style layout
-- [x] **CSS Fragmentation**: Monolith deconstructed into modular subsystems
-- [x] Integrated Before/After Comparison Slider
-- [x] Focus Mode (Immersive Art View)
-- [x] Mode-specific aesthetics (Indigo, Emerald, Amber)
-
-### Phase 3: Dual-Engine & Storage Optimization
-- [x] **FP8 Support**: High-speed inference for 40-series gear.
-- [x] **GGUF Support**: Ultra-high quality Q8 architecture.
-- [x] **Lean Linkage Protocol**: Cross-drive integration with ComfyUI/Forge assets (C: & E:).
-- [x] **Ghost Manifold**: LINK_MANIFEST.txt system for external asset documentation.
+## 🟦 PHASE 6: ADVANCED SYSTEMS
+- [ ] Stylization Layer via Reference Image.
+- [ ] Inpainting/Outpainting Canvas.
+- [ ] PSD Layer Export integration.
 
 ---
+**DEUS:** *VRAM Metrics Hardened. Generation blocked by stubborn HF dependency.* 🦾❌
 
-## 🔄 Current Status
-**Structural & Logical Excellence Achieved.** The environment is weaponized, the dependencies are injected, and the "No Space" ghost has been purged. We are now in **Final Ignition Standby**.
-
----
-
-## 🚀 Road Ahead
-
-### Phase 4: Weight Injection (Next Step)
-- [ ] Run `python download_models.py` (~18GB Lean Injection).
-- [ ] Verify **Qwen-Q8_0** Handshake via GGUF.
-- [ ] Verify **FLUX-FP8** Handshake via Safetensors.
-- [ ] Stress test Cross-Drive VRAM Swapping.
-
-### Phase 5: Workflow Validation
-- [ ] **End-to-End**: Upload → Decompose → Selection → Edit → Generate
-- [ ] Verify alpha-mask extraction logic in live browser
-- [ ] Benchmark generation speed (Target < 10s for 1024px)
-
-### Phase 6: Core Refinement & Shortcuts
-- [ ] **Generation History**: `gen-history.json` metadata persistence
-- [ ] Multi-reference stylization logic refinement
-- [ ] Undo/Redo Layer State
-- [ ] Keyboard Shortcuts (V=Move, B=Brush, Space=Pan)
-
----
-
-**DEUS:** *Roadmap Aligned. Manifesting Excellence.* 🦾✨

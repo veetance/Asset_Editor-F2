@@ -28,59 +28,65 @@ async def decompose_image(
     Args:
         image: Source image file
         layers: Number of layers to decompose (1-10)
-        resolution: Processing resolution (640 or 1024)
+        resolution: Processing resolution (640 or 1024, 640 recommended)
     
     Returns:
         JSON with session_id and layer URLs
     """
     from model_manager import swapper
     
-    # Validate
-    layers = max(1, min(10, layers))
-    resolution = 640 if resolution < 800 else 1024
-    
-    # Create session
-    session_id = str(uuid.uuid4())[:8]
-    session_dir = OUTPUTS_DIR / session_id
-    session_dir.mkdir(parents=True, exist_ok=True)
-    
-    # Load image
-    content = await image.read()
-    pil_image = Image.open(io.BytesIO(content)).convert("RGBA")
-    
-    # Save original
-    original_path = session_dir / "original.png"
-    pil_image.save(original_path)
-    
-    # Load Qwen (swap FLUX out if needed)
-    pipe = swapper.load_qwen()
-    
-    # Decompose
-    inputs = {
-        "image": pil_image,
-        "generator": torch.Generator(device="cuda").manual_seed(42),
-        "true_cfg_scale": 4.0,
-        "negative_prompt": " ",
-        "num_inference_steps": 50,
-        "num_images_per_prompt": 1,
-        "layers": layers,
-        "resolution": resolution,
-        "cfg_normalize": True,
-        "use_en_prompt": True,
-    }
-    
-    with torch.inference_mode():
-        output = pipe(**inputs)
-    
-    # Save layers
-    layer_urls = []
-    for i, layer_img in enumerate(output.images[0]):
-        layer_path = session_dir / f"layer_{i}.png"
-        layer_img.save(layer_path)
-        layer_urls.append(f"/outputs/{session_id}/layer_{i}.png")
-    
-    return JSONResponse({
-        "session_id": session_id,
-        "layers": layer_urls,
-        "count": len(layer_urls)
-    })
+    try:
+        # Validate
+        layers = max(1, min(10, layers))
+        resolution = 640 if resolution < 800 else 1024
+        
+        # Create session
+        session_id = str(uuid.uuid4())[:8]
+        session_dir = OUTPUTS_DIR / session_id
+        session_dir.mkdir(parents=True, exist_ok=True)
+        
+        # Load image
+        content = await image.read()
+        pil_image = Image.open(io.BytesIO(content)).convert("RGBA")
+        
+        # Save original
+        original_path = session_dir / "original.png"
+        pil_image.save(original_path)
+        
+        # Load Qwen (swap FLUX out if needed)
+        pipe = swapper.load_qwen()
+        if pipe is None:
+            return JSONResponse({"error": "Failed to load Qwen model. Ensure diffusers is installed from source."}, status_code=500)
+        
+        # Decompose (Official Qwen pattern from HuggingFace)
+        inputs = {
+            "image": pil_image,
+            "generator": torch.Generator(device="cuda").manual_seed(42),
+            "true_cfg_scale": 4.0,
+            "negative_prompt": " ",
+            "num_inference_steps": 50,
+            "num_images_per_prompt": 1,
+            "layers": layers,
+            "resolution": resolution,  # 640 recommended per docs
+            "cfg_normalize": True,
+            "use_en_prompt": True,  # Auto-caption in English
+        }
+        
+        with torch.inference_mode():
+            output = pipe(**inputs)
+        
+        # Save layers
+        layer_urls = []
+        for i, layer_img in enumerate(output.images[0]):
+            layer_path = session_dir / f"layer_{i}.png"
+            layer_img.save(layer_path)
+            layer_urls.append(f"/outputs/{session_id}/layer_{i}.png")
+        
+        return JSONResponse({
+            "session_id": session_id,
+            "layers": layer_urls,
+            "count": len(layer_urls)
+        })
+    except Exception as e:
+        print(f"[ERROR] decompose failed: {e}")
+        return JSONResponse({"error": str(e)}, status_code=500)
