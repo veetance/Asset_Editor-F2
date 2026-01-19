@@ -3,7 +3,8 @@
 
 **ASSET EDITOR** is a high-performance, local-first generative suite built for the **Veetance** domain. It leverages **FLUX.2 (9B)** for state-of-the-art image synthesis and **Qwen-VL** for intelligent layer decomposition, providing a seamless workflow from text-to-image to multi-layered asset management.
 
-![Header Interface](<img width="1267" height="540" alt="Screenshot 2026-01-19 150431" src="https://github.com/user-attachments/assets/fc4a115c-eebc-4141-95b8-892d95f56236" />)
+![Header Interface]<img width="1267" height="540" alt="Screenshot 2026-01-19 150431" src="https://github.com/user-attachments/assets/92635963-8387-4a8e-877b-8b91bbbc523d" />
+
 
 ---
 
