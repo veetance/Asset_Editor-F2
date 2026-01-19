@@ -35,7 +35,7 @@
 }
 
 .panel-content {
-    padding: var(--space-md) var(--space-lg);
+    padding: var(--space-lg) var(--space-lg);
     flex: 1;
     overflow-y: auto;
     display: flex;
@@ -68,7 +68,8 @@
 }
 
 .panel-action {
-    padding: var(--space-md) var(--space-lg);
+    padding: var(--space-sm) var(--space-lg);
+    /* Reduced for cinematic tightness */
     background: var(--bg-primary);
     border-top: 1px solid var(--border);
     flex-shrink: 0;
@@ -284,7 +285,8 @@
     background: var(--bg-elevated);
     border-color: var(--border-focus);
     transform: translateY(-2px) translateZ(0);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    box-shadow: var(--glow-photon-sm);
+    /* Photon Leak interaction */
 }
 
 .btn:active {

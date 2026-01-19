@@ -1,3 +1,103 @@
+/* Global Horizon Bar (The Surface Edge) */
+.global-loading-bar {
+    display: none;
+}
+
+.global-loading-bar.active {
+    opacity: 1;
+    width: 100%;
+    background: var(--color-load);
+    transition: width 8s linear, opacity 0.2s ease;
+}
+
+.global-loading-bar.offload {
+    opacity: 1;
+    width: 100%;
+    background: var(--error);
+    transition: width 2.5s linear, opacity 0.2s ease;
+}
+
+.global-loading-bar.complete {
+    width: 100%;
+    opacity: 0;
+    transition: opacity 0.4s ease;
+}
+
+
+@keyframes flowGradient {
+    0% {
+        background-position: 0% 50%;
+    }
+
+    100% {
+        background-position: 300% 50%;
+    }
+}
+
+@keyframes pulseError {
+    0% {
+        filter: brightness(1);
+    }
+
+    100% {
+        filter: brightness(1.3);
+    }
+}
+
+/* Contextual Header Bar (Flux-Klein Section Top) */
+/* Contextual Header Bar (Model Switcher Section Top) */
+.header-loading-bar {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    width: 0%;
+    background: var(--color-load);
+    z-index: 10001;
+    /* Above all within the switcher */
+    opacity: 0;
+    pointer-events: none;
+    transition: width 0.3s ease-out, opacity 0.2s ease;
+}
+
+.header-loading-bar.active {
+    opacity: 1;
+    width: 100%;
+    background: var(--color-load);
+    transition: width 8s linear, opacity 0.2s ease;
+}
+
+.header-loading-bar.offload {
+    background: var(--error);
+    opacity: 1;
+    width: 100%;
+    transition: width 2.5s linear, opacity 0.2s ease;
+}
+
+.header-loading-bar.complete {
+    width: 100%;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+/* Header Eject Icon */
+.header-eject-icon {
+    color: var(--error);
+    margin-right: 6px;
+    transition: all var(--transition-fast);
+    cursor: pointer;
+}
+
+.header-eject-icon:hover {
+    transform: scale(1.1);
+    filter: drop-shadow(0 0 4px var(--error));
+}
+
+.header-eject-icon.hidden {
+    display: none;
+}
+
 /* Layout */
 .app {
     display: grid;
@@ -12,40 +112,312 @@
     height: 48px;
     background: var(--bg-primary);
     border-bottom: 1px solid var(--border);
+    margin: 0;
+    padding: 0;
 }
 
-#vramStatus {
+.telemetry-stack {
+    grid-column: 3;
+    display: grid;
+    grid-template-rows: 2fr 1fr 1fr;
+    height: 100%;
+    background: #1a1a1e;
+    overflow: hidden;
+    border-left: 1px solid var(--border);
+    user-select: none;
+    -webkit-user-select: none;
+}
+
+/* Custom Select - Veetance Industrial Standard */
+.custom-select {
     position: relative;
+    width: 100%;
+    user-select: none;
+}
+
+.select-trigger {
     display: flex;
     align-items: center;
-    justify-content: flex-start;
-    padding: 0 var(--space-lg);
-    border-left: 1px solid var(--border);
-    overflow: hidden;
-    color: var(--color-generate);
+    justify-content: space-between;
+    padding: var(--space-sm) var(--space-md);
+    background: var(--bg-secondary);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    transition: all var(--transition-fast);
 }
 
-.vram-progress {
+.custom-select:hover .select-trigger {
+    border-color: var(--border-focus);
+    background: var(--bg-tertiary);
+}
+
+.custom-select.active .select-trigger {
+    border-color: var(--accent);
+    box-shadow: 0 0 10px var(--accent-glow);
+}
+
+.select-current {
+    font-size: var(--text-sm);
+    font-weight: 500;
+    color: var(--text-primary);
+}
+
+.select-chevron {
+    color: var(--text-muted);
+    transition: transform var(--transition-fast);
+}
+
+.custom-select.active .select-chevron {
+    transform: rotate(180deg);
+    color: var(--accent);
+}
+
+.custom-select.active .select-dropdown {
+    display: grid;
+    grid-template-rows: 1fr;
+    margin-top: 8px;
+    margin-bottom: 32px;
+    /* Physical push buffer */
+    border-color: var(--border);
+    box-shadow: var(--glow-photon);
+    /* Photon Leak Manifold activation */
+}
+
+.select-dropdown {
+    position: relative;
+    /* Flow-based reveal protocol */
+    border: 1px solid transparent;
+    /* Exile 'yugly' collapsed line */
+    border-radius: var(--radius-sm);
+    background: var(--bg-primary);
+    z-index: 10000;
+    display: grid;
+    grid-template-rows: 0fr;
+    margin-bottom: 0;
+    overflow: hidden;
+    backdrop-filter: blur(24px);
+    box-shadow: none;
+    transition: grid-template-rows 0.35s cubic-bezier(0.19, 1, 0.22, 1),
+        margin-bottom 0.35s cubic-bezier(0.19, 1, 0.22, 1),
+        border-color 0.2s linear,
+        box-shadow 0.2s linear;
+}
+
+.select-dropdown-inner {
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+.select-option {
+    padding: var(--space-sm) var(--space-md);
+    font-size: var(--text-sm);
+    color: var(--text-secondary);
+    transition: all var(--transition-fast);
+    cursor: pointer;
+}
+
+.select-option:hover {
+    background: var(--bg-glass);
+    color: var(--text-primary);
+}
+
+.select-option.active {
+    color: var(--accent);
+    border-right: 4px solid var(--accent);
+    background: rgba(255, 255, 255, 0.02);
+    /* Very subtle depth indicator */
+}
+
+.select {
+    display: none !important;
+}
+
+/* Purge primitive select visibility */
+
+.telemetry-row {
+    position: relative;
+    background: rgba(0, 0, 0, 0.3);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    overflow: hidden;
+    isolation: isolate;
+}
+
+.telemetry-inner {
     position: absolute;
     top: 0;
     left: 0;
-    bottom: 0;
+    height: 100%;
     width: 0%;
-    background: var(--color-generate);
-    opacity: 0.2;
-    transition: width var(--transition-base);
-    z-index: 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 16px;
+    transition: width 0.4s cubic-bezier(0.19, 1, 0.22, 1);
+    white-space: nowrap;
 }
 
-.vram-text {
-    position: relative;
-    z-index: 1;
-    font-size: 10px;
-    font-weight: 700;
-    font-family: var(--font-header);
-    letter-spacing: 0.05em;
-    text-transform: uppercase;
+.vram-row .telemetry-inner {
+    background: rgba(99, 102, 241, 0.8);
+    /* 80% Opacity Indigo */
+    color: #eef1ff;
+    cursor: ew-resize;
+    padding-right: 28px;
+    width: 50%;
 }
+
+.vram-row .label-muted {
+    color: var(--tint-gpu);
+    mix-blend-mode: screen;
+}
+
+.vram-row .telemetry-value {
+    color: var(--tint-gpu);
+    mix-blend-mode: screen;
+}
+
+.ram-row .telemetry-inner {
+    background: rgba(16, 185, 129, 0.5);
+    /* 50% opacity theme green */
+    color: #edfff9;
+}
+
+.ram-row .label-muted {
+    color: var(--tint-ram);
+    mix-blend-mode: screen;
+}
+
+.ram-row .telemetry-value {
+    color: var(--tint-ram);
+    mix-blend-mode: screen;
+}
+
+.cpu-row .telemetry-inner {
+    background: rgba(245, 158, 11, 0.5);
+    /* 50% opacity theme amber */
+    color: #fffbed;
+}
+
+.cpu-row .label-muted {
+    color: var(--tint-cpu);
+    mix-blend-mode: screen;
+}
+
+.cpu-row .telemetry-value {
+    color: var(--tint-cpu);
+    mix-blend-mode: screen;
+}
+
+/* Deeper Amber Tint */
+
+/* Guidance Field Container (For relative tooltip) */
+.field-guidance {
+    position: relative;
+}
+
+/* Guidance Chip (Contextual Tooltip above slider) */
+.guidance-chip {
+    position: absolute;
+    bottom: 100%;
+    left: 0;
+    right: 0;
+    margin-bottom: 8px;
+    background: rgba(15, 15, 20, 0.95);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 8px 12px;
+    border-radius: 4px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    align-items: center;
+    z-index: 100;
+    pointer-events: none;
+    transition: opacity 0.2s ease, transform 0.2s ease;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+    text-align: center;
+}
+
+.guidance-chip.hidden {
+    opacity: 0;
+    transform: translateY(8px);
+    pointer-events: none;
+}
+
+.chip-main {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+.chip-label {
+    font-size: 10px;
+    color: rgba(255, 255, 255, 0.4);
+    font-weight: 900;
+    letter-spacing: 0.1em;
+}
+
+.chip-value {
+    font-size: 14px;
+    font-weight: 700;
+    font-family: 'Roboto Mono', monospace;
+    color: var(--color-generate);
+}
+
+.chip-description {
+    font-size: 11px;
+    color: rgba(255, 255, 255, 0.7);
+    font-family: 'Inter', sans-serif;
+    line-height: 1.4;
+}
+
+.guidance-tip {
+    font-weight: 900;
+    color: var(--color-generate);
+    text-transform: uppercase;
+    font-size: 10px;
+    margin-right: 4px;
+}
+
+.telemetry-label {
+    font-size: 11px;
+    font-weight: 900;
+    font-family: 'Roboto Mono', monospace;
+    letter-spacing: -0.02em;
+    margin-right: 12px;
+}
+
+/* label-muted color handled per-row for thematic tinting */
+
+.telemetry-value {
+    font-size: 11px;
+    font-weight: 700;
+    font-family: 'Roboto Mono', monospace;
+}
+
+.governor-handle {
+    position: absolute;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    width: 16px;
+    font-size: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255, 255, 255, 0.05);
+    border-left: 1px solid rgba(255, 255, 255, 0.1);
+    opacity: 0.8;
+    pointer-events: none;
+    color: var(--tint-gpu);
+    mix-blend-mode: screen;
+}
+
+.vram-row:hover .governor-handle {
+    opacity: 1;
+}
+
 
 .logo {
     display: flex;
@@ -112,23 +484,53 @@
 
 .picker-dropdown {
     position: absolute;
-    top: calc(100% + 1px);
+    /* Revert to overlay protocol to save header layout */
+    top: 100%;
     left: -1px;
     right: -1px;
-    background: var(--bg-primary);
-    border: 1px solid var(--border);
+    /* Reveal manifold flow */
+    border: 1px solid transparent;
+    /* Purge ghost lines */
     border-top: none;
     z-index: 1000;
-    display: none;
-    flex-direction: column;
+    display: grid;
+    grid-template-rows: 0fr;
     box-shadow: none;
     backdrop-filter: blur(24px);
     padding: 0;
     overflow: hidden;
+    background: var(--bg-primary);
+    /* Ensure opacity for overlay */
+    transition: grid-template-rows 0.35s cubic-bezier(0.19, 1, 0.22, 1),
+        border-color 0.2s linear;
 }
 
 .model-picker.active .picker-dropdown {
+    grid-template-rows: 1fr;
+    border-color: var(--border);
+    box-shadow: var(--glow-photon);
+    /* Integrated interaction halo */
+}
+
+.picker-dropdown-inner {
+    min-height: 0;
     display: flex;
+    flex-direction: column;
+}
+
+/* Eject Icon */
+.eject-icon {
+    color: var(--error);
+    margin-right: var(--space-sm);
+    transition: all var(--transition-fast);
+}
+
+.eject-icon.hidden {
+    display: none;
+}
+
+.picker-item.loaded .model-name {
+    color: var(--text-primary);
 }
 
 .picker-item {

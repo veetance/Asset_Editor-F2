@@ -15,6 +15,17 @@ router = APIRouter()
 
 OUTPUTS_DIR = Path(__file__).parent.parent / "outputs"
 
+# VRAM Safety Constants (Estimated for FLUX 4B @ FP16)
+VRAM_BASE_MODEL_GB = 5.5  # Transformer + VAE resident
+VRAM_PER_MEGAPIXEL_GB = 1.2  # Latent scaling factor
+
+def estimate_vram_usage(width: int, height: int) -> float:
+    """Estimate total VRAM usage for a generation at given resolution."""
+    megapixels = (width * height) / 1_000_000
+    # Base + Latent + Activation buffer (1.5x safety margin)
+    estimated = VRAM_BASE_MODEL_GB + (megapixels * VRAM_PER_MEGAPIXEL_GB * 1.5)
+    return round(estimated, 2)
+
 
 @router.post("/txt2img")
 async def text_to_image(
@@ -22,36 +33,55 @@ async def text_to_image(
     width: int = Form(default=1024),
     height: int = Form(default=1024),
     steps: int = Form(default=4),
-    guidance: float = Form(default=0.0),  # FLUX.1-schnell uses 0.0 (distilled model)
+    guidance: float = Form(default=0.0),
     sampler: str = Form(default="euler"),
-    seed: int = Form(default=-1)
+    seed: int = Form(default=-1),
+    vram_budget: float = Form(default=16.0)  # User's VRAM limit from Governor
 ):
     """Generate image from text prompt using FLUX.2-Klein."""
     from model_manager import swapper
     
+    # ========== PRE-FLIGHT VRAM CHECK ==========
+    estimated_vram = estimate_vram_usage(width, height)
+    if estimated_vram > vram_budget:
+        return JSONResponse({
+            "error": f"VRAM SAFETY: Estimated {estimated_vram}GB exceeds your budget of {vram_budget}GB. Lower resolution or increase budget.",
+            "estimated_vram": estimated_vram,
+            "budget": vram_budget
+        }, status_code=400)
+    
+    print(f"[VRAM] Pre-Flight: Estimated {estimated_vram}GB (Budget: {vram_budget}GB) - SAFE")
+    # ============================================
+    
     try:
-        pipe = swapper.load_flux()
+        # Use currently loaded FLUX variant, or default to 4B
+        if swapper.current and swapper.current.startswith("flux-"):
+            pipe = swapper._flux_pipe
+        else:
+            pipe = swapper.load_flux("4b")
+            
         if pipe is None:
             return JSONResponse({"error": "Failed to load FLUX model"}, status_code=500)
         
-        # Set scheduler based on sampler choice (DISABLED for Manual Assembly)
-        # pipe = set_scheduler(pipe, sampler)
-        print("[VRAM] Using pre-configured FlowMatch scheduler (Manual Assembly)")
+        print(f"[VRAM] Using {swapper.current} for generation")
         
-        # Seed
+        # Seed - Let pipeline determine device internally
         if seed < 0:
             seed = torch.randint(0, 2**32, (1,)).item()
-        generator = torch.Generator(device="cuda").manual_seed(seed)
+        generator = torch.Generator().manual_seed(seed)
         
-        # Generate (Official FLUX.1-schnell pattern)
+        # Flux2KleinPipeline handles Qwen3 prompt formatting internally
+        print(f"[PROMPT] Raw: {prompt[:80]}...")
+        
+        # Generate with Flux2KleinPipeline
         with torch.inference_mode():
             result = pipe(
-                prompt=prompt,
+                image=None,
+                prompt=prompt,  # Pass raw prompt - pipeline handles Qwen3 formatting
                 height=height,
                 width=width,
-                guidance_scale=guidance,  # 0.0 for schnell/distilled models
+                guidance_scale=guidance,
                 num_inference_steps=steps,
-                max_sequence_length=512,  # Upgraded to 512 for max adherence
                 generator=generator
             )
         
@@ -67,10 +97,13 @@ async def text_to_image(
             "session_id": session_id,
             "image": f"/outputs/{session_id}/generated.png",
             "seed": seed,
-            "sampler": sampler
+            "sampler": sampler,
+            "vram_used": estimated_vram
         })
     except Exception as e:
+        import traceback
         print(f"[ERROR] txt2img failed: {e}")
+        traceback.print_exc()
         return JSONResponse({"error": str(e)}, status_code=500)
 
 

@@ -161,3 +161,11 @@ const CanvasStack = {
         this.updateLayerList();
     }
 };
+
+// Expose to window for modules
+window.CanvasStack = CanvasStack;
+
+// Auto-init on DOM ready
+document.addEventListener('DOMContentLoaded', () => {
+    CanvasStack.init();
+});

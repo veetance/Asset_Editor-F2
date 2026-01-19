@@ -3,9 +3,16 @@ ASSET EDITOR - FastAPI Server
 """
 
 import os
+import logging
+
+# SILENCE HARMFUL WARNING: W0119 torch.distributed.elastic.multiprocessing.redirects
+# This warning is aggressive and unfixable on Windows, so we mute the logger.
+logging.getLogger("torch.distributed.elastic.multiprocessing.redirects").setLevel(logging.ERROR)
+
 import uuid
 from pathlib import Path
-from fastapi import FastAPI
+import asyncio
+from fastapi import FastAPI, WebSocket
 from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -41,14 +48,18 @@ async def health():
 
 
 @app.post("/api/preload")
-async def preload_model(model: str = "flux"):
+async def preload_model(model: str = "flux-4b"):
     """Preload a model into GPU memory."""
     from model_manager import swapper
     try:
-        if model == "flux":
-            swapper.load_flux()
+        if model == "flux-4b":
+            swapper.load_flux("4b")
+        elif model == "flux-9b":
+            swapper.load_flux("9b")
         elif model == "qwen":
             swapper.load_qwen()
+        else:
+            return {"status": "error", "error": f"Unknown model: {model}"}
         return {
             "status": "loaded",
             "model": model,
@@ -63,7 +74,7 @@ async def offload_models():
     """Offload all models from GPU to CPU."""
     from model_manager import swapper
     try:
-        swapper._offload_current()
+        swapper.offload_current()
         return {
             "status": "offloaded",
             "vram": swapper.get_vram_usage()
@@ -71,6 +82,22 @@ async def offload_models():
     except Exception as e:
         return {"status": "error", "error": str(e)}
 
+
+@app.websocket("/ws/telemetry")
+async def telemetry_ws(websocket: WebSocket):
+    await websocket.accept()
+    from model_manager import swapper
+    try:
+        while True:
+            # 1. Receive Controls (Non-blocking check? No, we just push mostly)
+            # For simplicity: Push stats every 100ms
+            stats = swapper.get_vram_usage()
+            await websocket.send_json(stats)
+            await asyncio.sleep(0.1)
+    except Exception as e:
+        print(f"WS Disconnect: {e}")
+    finally:
+        await websocket.close()
 
 # Routes
 app.include_router(decompose_router, prefix="/api", tags=["decompose"])

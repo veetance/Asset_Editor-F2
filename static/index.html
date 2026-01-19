@@ -39,6 +39,10 @@
       </div>
     </div>
   </div>
+
+  <!-- Global Loading Bar (Top of viewport) -->
+  <div id="globalLoadingBar" class="global-loading-bar"></div>
+
   <div class="app" data-mode="generate">
     <header class="header">
       <div class="logo">
@@ -50,28 +54,58 @@
         ASSET EDITOR
       </div>
       <div class="model-picker" id="modelPicker">
+        <!-- Loading Bar pins to the top of this square section -->
+        <div id="headerLoadingBar" class="header-loading-bar"></div>
         <div class="picker-trigger" id="pickerTrigger">
-          <span id="currentModelName">FLUX-KLEIN</span>
+          <span id="currentModelName">Model</span>
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12">
             <path d="m6 9 6 6 6-6" />
           </svg>
         </div>
         <div class="picker-dropdown" id="pickerDropdown">
-          <div class="picker-item" data-model="flux">
-            <span class="model-name">FLUX-KLEIN</span>
-            <button class="btn-picker" data-model="flux">LOAD</button>
-          </div>
-          <div class="picker-item" data-model="qwen">
-            <span class="model-name">Qwen-Image-Layered</span>
-            <button class="btn-picker" data-model="qwen">LOAD</button>
+          <div class="picker-dropdown-inner">
+            <div class="picker-item" data-model="flux-4b">
+              <span class="model-name">FLUX Klein 4B</span>
+              <button class="btn-picker" data-model="flux-4b">LOAD</button>
+            </div>
+            <div class="picker-item" data-model="flux-9b">
+              <span class="model-name">FLUX Klein 9B (FP8)</span>
+              <button class="btn-picker" data-model="flux-9b">LOAD</button>
+            </div>
+            <div class="picker-item" data-model="qwen">
+              <span class="model-name">Qwen-Image-Layered</span>
+              <button class="btn-picker" data-model="qwen">LOAD</button>
+            </div>
           </div>
         </div>
       </div>
-      <div id="vramStatus" class="status">
-        <div class="vram-progress" id="vramProgress"></div>
-        <span class="vram-text">VRAM: --</span>
+      <div id="telemetryStack" class="telemetry-stack">
+        <!-- VRAM Bar (Top, Purple, Interactive) -->
+        <div class="telemetry-row vram-row" id="vramGovernor">
+          <div class="telemetry-inner" id="vramProgress">
+            <span class="telemetry-label">GPU <span class="label-muted">16GB</span>:</span>
+            <span class="telemetry-value" id="vramValue">8GB</span>
+            <div class="governor-handle">↔</div>
+          </div>
+        </div>
+        <!-- CPU Bar (Middle, Green) -->
+        <div class="telemetry-row cpu-row">
+          <div class="telemetry-inner" id="cpuProgress">
+            <span class="telemetry-label">CPU <span class="label-muted">16GB</span>:</span>
+            <span class="telemetry-value" id="cpuValue">0%</span>
+          </div>
+        </div>
+        <!-- RAM Bar (Bottom, Pink) -->
+        <div class="telemetry-row ram-row">
+          <div class="telemetry-inner" id="ramProgress">
+            <span class="telemetry-label">RAM <span class="label-muted">16GB</span>:</span>
+            <span class="telemetry-value" id="ramValue">0GB</span>
+          </div>
+        </div>
       </div>
     </header>
+
+
 
     <!-- Main -->
     <main class="main">
@@ -88,6 +122,14 @@
                 <textarea class="textarea" id="genPrompt" placeholder="Describe the image..."></textarea>
               </div>
             </div>
+
+            <div class="field">
+              <label class="field-label">Batch Size</label>
+              <div class="slider-wrap">
+                <input type="range" class="slider" id="genBatchSize" min="1" max="4" step="1" value="1">
+                <span class="slider-value" id="genBatchSizeValue">1</span>
+              </div>
+            </div>
             <div class="field">
               <label class="field-label">Width</label>
               <div class="slider-wrap">
@@ -102,26 +144,42 @@
                 <span class="slider-value" id="genHeightValue">1024</span>
               </div>
             </div>
-            <div class="field">
+            <div class="field field-guidance">
               <label class="field-label">Guidance</label>
               <div class="slider-wrap">
                 <input type="range" class="slider" id="genGuidance" min="0" max="10" step="0.5" value="0">
                 <span class="slider-value" id="genGuidanceValue">0.0</span>
               </div>
-              <div id="genGuidanceHint" class="guidance-hint">
-                <span class="guidance-tip">Schnell Mode:</span> FLUX.2-Klein is distilled, guidance=0 recommended.
+              <!-- Guidance Chip (Contextual Tooltip) -->
+              <div id="canvasChip" class="guidance-chip hidden">
+                <div class="chip-main">
+                  <span class="chip-label">GUIDANCE:</span>
+                  <span class="chip-value" id="chipValue">0.0</span>
+                </div>
+                <div id="chipDesc" class="chip-description"></div>
               </div>
             </div>
             <div class="field">
               <label class="field-label">Sampler</label>
-              <select class="select" id="genSampler">
-                <option value="euler" selected>Euler</option>
-                <option value="euler_a">Euler Ancestral</option>
-                <option value="dpm++_2m">DPM++ 2M</option>
-                <option value="dpm++_2m_karras">DPM++ 2M Karras</option>
-                <option value="ddim">DDIM</option>
-                <option value="lms">LMS</option>
-              </select>
+              <div class="custom-select" id="genSampler" data-value="euler">
+                <div class="select-trigger">
+                  <span class="select-current">Euler</span>
+                  <svg class="select-chevron" width="10" height="10" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="3">
+                    <path d="m6 9 6 6 6-6" />
+                  </svg>
+                </div>
+                <div class="select-dropdown">
+                  <div class="select-dropdown-inner">
+                    <div class="select-option active" data-value="euler">Euler</div>
+                    <div class="select-option" data-value="euler_a">Euler Ancestral</div>
+                    <div class="select-option" data-value="dpm++_2m">DPM++ 2M</div>
+                    <div class="select-option" data-value="dpm++_2m_karras">DPM++ 2M Karras</div>
+                    <div class="select-option" data-value="ddim">DDIM</div>
+                    <div class="select-option" data-value="lms">LMS</div>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
 
@@ -182,13 +240,24 @@
             </div>
             <div class="field">
               <label class="field-label">Preprocessor</label>
-              <select class="select" id="editPreprocessor">
-                <option value="none" selected>None</option>
-                <option value="canny">Canny Edge</option>
-                <option value="blur">Gaussian Blur</option>
-                <option value="sharpen">Sharpen</option>
-                <option value="grayscale">Grayscale</option>
-              </select>
+              <div class="custom-select" id="editPreprocessor" data-value="none">
+                <div class="select-trigger">
+                  <span class="select-current">None</span>
+                  <svg class="select-chevron" width="10" height="10" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="3">
+                    <path d="m6 9 6 6 6-6" />
+                  </svg>
+                </div>
+                <div class="select-dropdown">
+                  <div class="select-dropdown-inner">
+                    <div class="select-option active" data-value="none">None</div>
+                    <div class="select-option" data-value="canny">Canny Edge</div>
+                    <div class="select-option" data-value="blur">Gaussian Blur</div>
+                    <div class="select-option" data-value="sharpen">Sharpen</div>
+                    <div class="select-option" data-value="grayscale">Grayscale</div>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
 
@@ -281,19 +350,21 @@
           <div id="layerList">
             <div class="empty-state">EMPTY</div>
           </div>
+          <div class="panel-buffer" style="height: 100px;"></div>
         </div>
       </aside>
     </main>
   </div>
 
-  <script src="scripts/api.js?v=2"></script>
   <script src="scripts/canvas-stack.js?v=2"></script>
   <script src="scripts/masking.js?v=2"></script>
   <script src="scripts/animations.js?v=2"></script>
   <script src="scripts/prompts.js?v=2"></script>
   <script src="scripts/viewport.js?v=2"></script>
   <script src="scripts/comparison.js?v=2"></script>
-  <script src="scripts/app.js?v=2"></script>
+
+  <!-- Modular Architecture -->
+  <script type="module" src="scripts/main.js"></script>
 </body>
 
 </html>

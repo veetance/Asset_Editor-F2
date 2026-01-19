@@ -62,21 +62,25 @@ def download_manifold():
     else:
         print(f"✅ Qwen VAE detected.")
 
-    # 4. FLUX.2-klein-9B GGUF (Unsloth) - ~10GB
-    flux_repo = "unsloth/FLUX.2-klein-9B-GGUF"
-    flux_filename = "flux-2-klein-9b-Q8_0.gguf"
-    flux_dir = os.path.join(MODEL_DIR, "flux-schnell")
-    os.makedirs(flux_dir, exist_ok=True)
-    flux_path = os.path.join(flux_dir, flux_filename)
+    # 4. FLUX.2-klein-4B Safetensors (Official BFL - Diffusers Compatible) - ~8GB
+    from huggingface_hub import snapshot_download
+    flux_repo = "black-forest-labs/FLUX.2-klein-4B"
+    flux_dir = os.path.join(MODEL_DIR, "flux-klein-4b")
+    flux_marker = os.path.join(flux_dir, "transformer", "diffusion_pytorch_model.safetensors")
     
-    if not os.path.exists(flux_path):
-        print(f"📥 Pulling {flux_repo} (Q8_0 - ~10GB)...")
+    if not os.path.exists(flux_marker):
+        print(f"[DOWNLOAD] Pulling {flux_repo} (safetensors - ~8GB)...")
         try:
-            hf_hub_download(repo_id=flux_repo, filename=flux_filename, local_dir=flux_dir)
+            snapshot_download(
+                repo_id=flux_repo,
+                local_dir=flux_dir,
+                ignore_patterns=["*.md", "*.txt", "*.jpg", "*.png"]
+            )
+            print(f"[DOWNLOAD] FLUX.2-klein-4B complete.")
         except Exception as e:
-            print(f"❌ FLUX Error: {e}")
+            print(f"[ERROR] FLUX Download Failed: {e}")
     else:
-        print(f"✅ {flux_filename} detected.")
+        print(f"[OK] FLUX.2-klein-4B detected.")
 
     print("🚀 CORE WEIGHTS INJECTED & LINKAGE MAPPED.")
 

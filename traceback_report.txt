@@ -1,0 +1,361 @@
+﻿[LOADER] Initiating FLUX.2-klein-4B pipeline...
+[LOADER] Transformer: Flux2Transformer2DModel(
+  (pos_embed): Flux2PosEmbed()
+  (time_guidance_embed): Flux2TimestepGuidanceEmbeddings(
+    (time_proj): Timesteps()
+    (timestep_embedder): TimestepEmbedding(
+      (linear_1): Linear(in_features=256, out_features=3072, bias=False)
+      (act): SiLU()
+      (linear_2): Linear(in_features=3072, out_features=3072, bias=False)
+    )
+  )
+  (double_stream_modulation_img): Flux2Modulation(
+    (linear): Linear(in_features=3072, out_features=18432, bias=False)
+    (act_fn): SiLU()
+  )
+  (double_stream_modulation_txt): Flux2Modulation(
+    (linear): Linear(in_features=3072, out_features=18432, bias=False)
+    (act_fn): SiLU()
+  )
+  (single_stream_modulation): Flux2Modulation(
+    (linear): Linear(in_features=3072, out_features=9216, bias=False)
+    (act_fn): SiLU()
+  )
+  (x_embedder): Linear(in_features=128, out_features=3072, bias=False)
+  (context_embedder): Linear(in_features=7680, out_features=3072, bias=False)
+  (transformer_blocks): ModuleList(
+    (0-4): 5 x Flux2TransformerBlock(
+      (norm1): LayerNorm((3072,), eps=1e-06, elementwise_affine=False)
+      (norm1_context): LayerNorm((3072,), eps=1e-06, elementwise_affine=False)
+      (attn): Flux2Attention(
+        (to_q): Linear(in_features=3072, out_features=3072, bias=False)
+        (to_k): Linear(in_features=3072, out_features=3072, bias=False)
+        (to_v): Linear(in_features=3072, out_features=3072, bias=False)
+        (norm_q): RMSNorm((128,), eps=1e-06, elementwise_affine=True)
+        (norm_k): RMSNorm((128,), eps=1e-06, elementwise_affine=True)
+        (to_out): ModuleList(
+          (0): Linear(in_features=3072, out_features=3072, bias=False)
+          (1): Dropout(p=0.0, inplace=False)
+        )
+        (norm_added_q): RMSNorm((128,), eps=1e-06, elementwise_affine=True)
+        (norm_added_k): RMSNorm((128,), eps=1e-06, elementwise_affine=True)
+        (add_q_proj): Linear(in_features=3072, out_features=3072, bias=False)
+        (add_k_proj): Linear(in_features=3072, out_features=3072, bias=False)
+        (add_v_proj): Linear(in_features=3072, out_features=3072, bias=False)
+        (to_add_out): Linear(in_features=3072, out_features=3072, bias=False)
+      )
+      (norm2): LayerNorm((3072,), eps=1e-06, elementwise_affine=False)
+      (ff): Flux2FeedForward(
+        (linear_in): Linear(in_features=3072, out_features=18432, bias=False)
+        (act_fn): Flux2SwiGLU(
+          (gate_fn): SiLU()
+        )
+        (linear_out): Linear(in_features=9216, out_features=3072, bias=False)
+      )
+      (norm2_context): LayerNorm((3072,), eps=1e-06, elementwise_affine=False)
+      (ff_context): Flux2FeedForward(
+        (linear_in): Linear(in_features=3072, out_features=18432, bias=False)
+        (act_fn): Flux2SwiGLU(
+          (gate_fn): SiLU()
+        )
+        (linear_out): Linear(in_features=9216, out_features=3072, bias=False)
+      )
+    )
+  )
+  (single_transformer_blocks): ModuleList(
+    (0-19): 20 x Flux2SingleTransformerBlock(
+      (norm): LayerNorm((3072,), eps=1e-06, elementwise_affine=False)
+      (attn): Flux2ParallelSelfAttention(
+        (to_qkv_mlp_proj): Linear(in_features=3072, out_features=27648, bias=False)
+        (mlp_act_fn): Flux2SwiGLU(
+          (gate_fn): SiLU()
+        )
+        (norm_q): RMSNorm((128,), eps=1e-06, elementwise_affine=True)
+        (norm_k): RMSNorm((128,), eps=1e-06, elementwise_affine=True)
+        (to_out): Linear(in_features=12288, out_features=3072, bias=False)
+      )
+    )
+  )
+  (norm_out): AdaLayerNormContinuous(
+    (silu): SiLU()
+    (linear): Linear(in_features=3072, out_features=6144, bias=False)
+    (norm): LayerNorm((3072,), eps=1e-06, elementwise_affine=False)
+  )
+  (proj_out): Linear(in_features=3072, out_features=128, bias=False)
+)
+[LOADER] Text Encoder: Qwen3ForCausalLM(
+  (model): Qwen3Model(
+    (embed_tokens): Embedding(151936, 2560)
+    (layers): ModuleList(
+      (0-35): 36 x Qwen3DecoderLayer(
+        (self_attn): Qwen3Attention(
+          (q_proj): Linear(in_features=2560, out_features=4096, bias=False)
+          (k_proj): Linear(in_features=2560, out_features=1024, bias=False)
+          (v_proj): Linear(in_features=2560, out_features=1024, bias=False)
+          (o_proj): Linear(in_features=4096, out_features=2560, bias=False)
+          (q_norm): Qwen3RMSNorm((128,), eps=1e-06)
+          (k_norm): Qwen3RMSNorm((128,), eps=1e-06)
+        )
+        (mlp): Qwen3MLP(
+          (gate_proj): Linear(in_features=2560, out_features=9728, bias=False)
+          (up_proj): Linear(in_features=2560, out_features=9728, bias=False)
+          (down_proj): Linear(in_features=9728, out_features=2560, bias=False)
+          (act_fn): SiLUActivation()
+        )
+        (input_layernorm): Qwen3RMSNorm((2560,), eps=1e-06)
+        (post_attention_layernorm): Qwen3RMSNorm((2560,), eps=1e-06)
+      )
+    )
+    (norm): Qwen3RMSNorm((2560,), eps=1e-06)
+    (rotary_emb): Qwen3RotaryEmbedding()
+  )
+  (lm_head): Linear(in_features=2560, out_features=151936, bias=False)
+)
+[LOADER] VAE: AutoencoderKLFlux2(
+  (encoder): Encoder(
+    (conv_in): Conv2d(3, 128, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1))
+    (down_blocks): ModuleList(
+      (0): DownEncoderBlock2D(
+        (resnets): ModuleList(
+          (0-1): 2 x ResnetBlock2D(
+            (norm1): GroupNorm(32, 128, eps=1e-06, affine=True)
+            (conv1): Conv2d(128, 128, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1))
+            (norm2): GroupNorm(32, 128, eps=1e-06, affine=True)
+            (dropout): Dropout(p=0.0, inplace=False)
+            (conv2): Conv2d(128, 128, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1))
+            (nonlinearity): SiLU()
+          )
+        )
+        (downsamplers): ModuleList(
+          (0): Downsample2D(
+            (conv): Conv2d(128, 128, kernel_size=(3, 3), stride=(2, 2))
+          )
+        )
+      )
+      (1): DownEncoderBlock2D(
+        (resnets): ModuleList(
+          (0): ResnetBlock2D(
+            (norm1): GroupNorm(32, 128, eps=1e-06, affine=True)
+            (conv1): Conv2d(128, 256, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1))
+            (norm2): GroupNorm(32, 256, eps=1e-06, affine=True)
+            (dropout): Dropout(p=0.0, inplace=False)
+            (conv2): Conv2d(256, 256, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1))
+            (nonlinearity): SiLU()
+            (conv_shortcut): Conv2d(128, 256, kernel_size=(1, 1), stride=(1, 1))
+          )
+          (1): ResnetBlock2D(
+            (norm1): GroupNorm(32, 256, eps=1e-06, affine=True)
+            (conv1): Conv2d(256, 256, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1))
+            (norm2): GroupNorm(32, 256, eps=1e-06, affine=True)
+            (dropout): Dropout(p=0.0, inplace=False)
+            (conv2): Conv2d(256, 256, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1))
+            (nonlinearity): SiLU()
+          )
+        )
+        (downsamplers): ModuleList(
+          (0): Downsample2D(
+            (conv): Conv2d(256, 256, kernel_size=(3, 3), stride=(2, 2))
+          )
+        )
+      )
+      (2): DownEncoderBlock2D(
+        (resnets): ModuleList(
+          (0): ResnetBlock2D(
+            (norm1): GroupNorm(32, 256, eps=1e-06, affine=True)
+            (conv1): Conv2d(256, 512, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1))
+            (norm2): GroupNorm(32, 512, eps=1e-06, affine=True)
+            (dropout): Dropout(p=0.0, inplace=False)
+            (conv2): Conv2d(512, 512, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1))
+            (nonlinearity): SiLU()
+            (conv_shortcut): Conv2d(256, 512, kernel_size=(1, 1), stride=(1, 1))
+          )
+          (1): ResnetBlock2D(
+            (norm1): GroupNorm(32, 512, eps=1e-06, affine=True)
+            (conv1): Conv2d(512, 512, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1))
+            (norm2): GroupNorm(32, 512, eps=1e-06, affine=True)
+            (dropout): Dropout(p=0.0, inplace=False)
+            (conv2): Conv2d(512, 512, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1))
+            (nonlinearity): SiLU()
+          )
+        )
+        (downsamplers): ModuleList(
+          (0): Downsample2D(
+            (conv): Conv2d(512, 512, kernel_size=(3, 3), stride=(2, 2))
+          )
+        )
+      )
+      (3): DownEncoderBlock2D(
+        (resnets): ModuleList(
+          (0-1): 2 x ResnetBlock2D(
+            (norm1): GroupNorm(32, 512, eps=1e-06, affine=True)
+            (conv1): Conv2d(512, 512, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1))
+            (norm2): GroupNorm(32, 512, eps=1e-06, affine=True)
+            (dropout): Dropout(p=0.0, inplace=False)
+            (conv2): Conv2d(512, 512, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1))
+            (nonlinearity): SiLU()
+          )
+        )
+      )
+    )
+    (mid_block): UNetMidBlock2D(
+      (attentions): ModuleList(
+        (0): Attention(
+          (group_norm): GroupNorm(32, 512, eps=1e-06, affine=True)
+          (to_q): Linear(in_features=512, out_features=512, bias=True)
+          (to_k): Linear(in_features=512, out_features=512, bias=True)
+          (to_v): Linear(in_features=512, out_features=512, bias=True)
+          (to_out): ModuleList(
+            (0): Linear(in_features=512, out_features=512, bias=True)
+            (1): Dropout(p=0.0, inplace=False)
+          )
+        )
+      )
+      (resnets): ModuleList(
+        (0-1): 2 x ResnetBlock2D(
+          (norm1): GroupNorm(32, 512, eps=1e-06, affine=True)
+          (conv1): Conv2d(512, 512, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1))
+          (norm2): GroupNorm(32, 512, eps=1e-06, affine=True)
+          (dropout): Dropout(p=0.0, inplace=False)
+          (conv2): Conv2d(512, 512, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1))
+          (nonlinearity): SiLU()
+        )
+      )
+    )
+    (conv_norm_out): GroupNorm(32, 512, eps=1e-06, affine=True)
+    (conv_act): SiLU()
+    (conv_out): Conv2d(512, 64, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1))
+  )
+  (decoder): Decoder(
+    (conv_in): Conv2d(32, 512, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1))
+    (up_blocks): ModuleList(
+      (0-1): 2 x UpDecoderBlock2D(
+        (resnets): ModuleList(
+          (0-2): 3 x ResnetBlock2D(
+            (norm1): GroupNorm(32, 512, eps=1e-06, affine=True)
+            (conv1): Conv2d(512, 512, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1))
+            (norm2): GroupNorm(32, 512, eps=1e-06, affine=True)
+            (dropout): Dropout(p=0.0, inplace=False)
+            (conv2): Conv2d(512, 512, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1))
+            (nonlinearity): SiLU()
+          )
+        )
+        (upsamplers): ModuleList(
+          (0): Upsample2D(
+            (conv): Conv2d(512, 512, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1))
+          )
+        )
+      )
+      (2): UpDecoderBlock2D(
+        (resnets): ModuleList(
+          (0): ResnetBlock2D(
+            (norm1): GroupNorm(32, 512, eps=1e-06, affine=True)
+            (conv1): Conv2d(512, 256, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1))
+            (norm2): GroupNorm(32, 256, eps=1e-06, affine=True)
+            (dropout): Dropout(p=0.0, inplace=False)
+            (conv2): Conv2d(256, 256, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1))
+            (nonlinearity): SiLU()
+            (conv_shortcut): Conv2d(512, 256, kernel_size=(1, 1), stride=(1, 1))
+          )
+          (1-2): 2 x ResnetBlock2D(
+            (norm1): GroupNorm(32, 256, eps=1e-06, affine=True)
+            (conv1): Conv2d(256, 256, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1))
+            (norm2): GroupNorm(32, 256, eps=1e-06, affine=True)
+            (dropout): Dropout(p=0.0, inplace=False)
+            (conv2): Conv2d(256, 256, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1))
+            (nonlinearity): SiLU()
+          )
+        )
+        (upsamplers): ModuleList(
+          (0): Upsample2D(
+            (conv): Conv2d(256, 256, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1))
+          )
+        )
+      )
+      (3): UpDecoderBlock2D(
+        (resnets): ModuleList(
+          (0): ResnetBlock2D(
+            (norm1): GroupNorm(32, 256, eps=1e-06, affine=True)
+            (conv1): Conv2d(256, 128, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1))
+            (norm2): GroupNorm(32, 128, eps=1e-06, affine=True)
+            (dropout): Dropout(p=0.0, inplace=False)
+            (conv2): Conv2d(128, 128, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1))
+            (nonlinearity): SiLU()
+            (conv_shortcut): Conv2d(256, 128, kernel_size=(1, 1), stride=(1, 1))
+          )
+          (1-2): 2 x ResnetBlock2D(
+            (norm1): GroupNorm(32, 128, eps=1e-06, affine=True)
+            (conv1): Conv2d(128, 128, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1))
+            (norm2): GroupNorm(32, 128, eps=1e-06, affine=True)
+            (dropout): Dropout(p=0.0, inplace=False)
+            (conv2): Conv2d(128, 128, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1))
+            (nonlinearity): SiLU()
+          )
+        )
+      )
+    )
+    (mid_block): UNetMidBlock2D(
+      (attentions): ModuleList(
+        (0): Attention(
+          (group_norm): GroupNorm(32, 512, eps=1e-06, affine=True)
+          (to_q): Linear(in_features=512, out_features=512, bias=True)
+          (to_k): Linear(in_features=512, out_features=512, bias=True)
+          (to_v): Linear(in_features=512, out_features=512, bias=True)
+          (to_out): ModuleList(
+            (0): Linear(in_features=512, out_features=512, bias=True)
+            (1): Dropout(p=0.0, inplace=False)
+          )
+        )
+      )
+      (resnets): ModuleList(
+        (0-1): 2 x ResnetBlock2D(
+          (norm1): GroupNorm(32, 512, eps=1e-06, affine=True)
+          (conv1): Conv2d(512, 512, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1))
+          (norm2): GroupNorm(32, 512, eps=1e-06, affine=True)
+          (dropout): Dropout(p=0.0, inplace=False)
+          (conv2): Conv2d(512, 512, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1))
+          (nonlinearity): SiLU()
+        )
+      )
+    )
+    (conv_norm_out): GroupNorm(32, 128, eps=1e-06, affine=True)
+    (conv_act): SiLU()
+    (conv_out): Conv2d(128, 3, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1))
+  )
+  (quant_conv): Conv2d(64, 64, kernel_size=(1, 1), stride=(1, 1))
+  (post_quant_conv): Conv2d(32, 32, kernel_size=(1, 1), stride=(1, 1))
+  (bn): BatchNorm2d(128, eps=0.0001, momentum=0.1, affine=False, track_running_stats=True)
+)
+[LOADER] Scheduler: FlowMatchEulerDiscreteScheduler {
+  "_class_name": "FlowMatchEulerDiscreteScheduler",
+  "_diffusers_version": "0.37.0.dev0",
+  "base_image_seq_len": 256,
+  "base_shift": 0.5,
+  "invert_sigmas": false,
+  "max_image_seq_len": 4096,
+  "max_shift": 1.15,
+  "num_train_timesteps": 1000,
+  "shift": 3.0,
+  "shift_terminal": null,
+  "stochastic_sampling": false,
+  "time_shift_type": "exponential",
+  "use_beta_sigmas": false,
+  "use_dynamic_shifting": true,
+  "use_exponential_sigmas": false,
+  "use_karras_sigmas": false
+}
+
+[LOADER] Engaging Native SDPA (Stable Engine)...
+[LOADER] Locking Manifold to GPU (Locked)...
+[LOADER] FLUX.2-klein-4B Pipeline Ready.
+
+--- DIAGNOSTICS ---
+Pipeline Type: <class 'diffusers.pipelines.flux2.pipeline_flux2_klein.Flux2KleinPipeline'>
+Transformer: <class 'diffusers.models.transformers.transformer_flux2.Flux2Transformer2DModel'>
+Text Encoder: <class 'transformers.models.qwen3.modeling_qwen3.Qwen3ForCausalLM'>
+VAE: <class 'diffusers.models.autoencoders.autoencoder_kl_flux2.AutoencoderKLFlux2'>
+Scheduler: <class 'diffusers.schedulers.scheduling_flow_match_euler_discrete.FlowMatchEulerDiscreteScheduler'>
+Tokenizer: <class 'transformers.models.qwen2.tokenization_qwen2_fast.Qwen2TokenizerFast'>
+Is transformer callable: True
+Is text_encoder callable: True
+Testing generation call...
+CRITICAL ERROR: 'NoneType' object has no attribute '__call__'

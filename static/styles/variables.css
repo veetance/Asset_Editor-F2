@@ -31,13 +31,31 @@
   /* Amber - modification/change */
 
   --color-generate-glow: rgba(99, 102, 241, 0.15);
+  --color-generate-glow-strong: rgba(99, 102, 241, 0.35);
   --color-stylize-glow: rgba(236, 72, 153, 0.15);
+  --color-stylize-glow-strong: rgba(236, 72, 153, 0.35);
   --color-decompose-glow: rgba(16, 185, 129, 0.15);
+  --color-decompose-glow-strong: rgba(16, 185, 129, 0.35);
   --color-edit-glow: rgba(245, 158, 11, 0.15);
+  --color-edit-glow-strong: rgba(245, 158, 11, 0.35);
+
+  /* Telemetry Tints (Vibrant Pastel) */
+  --tint-gpu: #a5b4fc;
+  /* Bright Pastel Indigo */
+  --tint-ram: #6ee7b7;
+  /* Bright Pastel Emerald */
+  --tint-cpu: #fcd34d;
+  /* Bright Pastel Amber */
+
+  /* Photon Leak Manifold (Novel Interaction Design) */
+  --glow-photon: 0 12px 48px -12px var(--accent-glow-strong);
+  --glow-photon-sm: 0 4px 20px -5px var(--accent-glow-strong);
 
   /* Status */
   --success: #4ade80;
   --error: #f87171;
+  --color-load: #6366f1;
+  /* Synced with Generate Mode Indigo */
 
   /* Current mode accent (set by JS) */
   --accent: var(--color-generate);
@@ -78,23 +96,27 @@
 [data-mode="generate"] {
   --accent: var(--color-generate);
   --accent-glow: var(--color-generate-glow);
+  --accent-glow-strong: var(--color-generate-glow-strong);
   --accent-surface: rgba(99, 102, 241, 0.5);
 }
 
 [data-mode="stylize"] {
   --accent: var(--color-stylize);
   --accent-glow: var(--color-stylize-glow);
+  --accent-glow-strong: var(--color-stylize-glow-strong);
   --accent-surface: rgba(236, 72, 153, 0.5);
 }
 
 [data-mode="decompose"] {
   --accent: var(--color-decompose);
   --accent-glow: var(--color-decompose-glow);
+  --accent-glow-strong: var(--color-decompose-glow-strong);
   --accent-surface: rgba(16, 185, 129, 0.5);
 }
 
 [data-mode="edit"] {
   --accent: var(--color-edit);
   --accent-glow: var(--color-edit-glow);
+  --accent-glow-strong: var(--color-edit-glow-strong);
   --accent-surface: rgba(245, 158, 11, 0.5);
 }
