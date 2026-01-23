@@ -14,31 +14,32 @@ export const Generator = {
     async generate() {
         const prompt = document.getElementById('genPrompt').value.trim();
         if (!prompt) return State.showStatus('Enter prompt', 'error');
+        if (prompt.length < 3 && !prompt.includes(' ')) return State.showStatus('Prompt too short', 'error');
 
         const width = parseInt(document.getElementById('genWidth').value);
         const height = parseInt(document.getElementById('genHeight').value);
         const guidance = parseFloat(document.getElementById('genGuidance').value);
         const sampler = document.getElementById('genSampler').dataset.value;
+        const scheduler = document.getElementById('genScheduler').dataset.value;
         const vramBudget = State.vramUserLimit || 16.0;
 
         State.showStatus('Generating...', 'loading');
+        const targetModel = State.loadedModel || 'flux-4b';
+        console.log(`[GENERATOR] Target: ${targetModel} | Prompt: ${prompt.slice(0, 30)}...`);
         if (window.GenerationAnim) window.GenerationAnim.start();
 
         try {
-            const res = await API.txt2img(prompt, width, height, guidance, sampler, vramBudget);
+            const res = await API.txt2img(prompt, width, height, guidance, sampler, scheduler, vramBudget, targetModel);
             if (window.CanvasStack) {
                 window.CanvasStack.clear();
                 window.CanvasStack.addLayer(res.image, 0);
             }
-            State.showStatus(`Generated (${res.vram_used}GB VRAM)`);
+            State.showStatus(`Generated using ${res.model || 'FLUX'} (${res.vram_used}GB VRAM)`);
         } catch (e) {
             console.error(e);
-            // Check if it's a VRAM safety error
-            if (e.message && e.message.includes('VRAM SAFETY')) {
-                State.showStatus(e.message, 'error');
-            } else {
-                State.showStatus('Generation Failed', 'error');
-            }
+            State.showStatus('Generation Failed', 'error');
+        } finally {
+            if (window.GenerationAnim) window.GenerationAnim.stop();
         }
     },
 
@@ -61,6 +62,8 @@ export const Generator = {
         } catch (e) {
             console.error(e);
             State.showStatus('Failed', 'error');
+        } finally {
+            if (window.GenerationAnim) window.GenerationAnim.stop();
         }
     },
 
@@ -89,6 +92,8 @@ export const Generator = {
         } catch (e) {
             console.error(e);
             State.showStatus('Edit failed', 'error');
+        } finally {
+            if (window.GenerationAnim) window.GenerationAnim.stop();
         }
     }
 };

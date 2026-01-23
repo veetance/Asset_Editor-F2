@@ -1,1 +1,0 @@
-FOUND: C:\MAIN-COMFY\ComfyUI\custom_nodes\ComfyUI-WanVideoWrapper\configs\T5_tokenizer\spiece.model

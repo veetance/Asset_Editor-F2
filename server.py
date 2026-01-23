@@ -4,9 +4,18 @@ ASSET EDITOR - FastAPI Server
 
 import os
 import logging
+import warnings
 
-# SILENCE HARMFUL WARNING: W0119 torch.distributed.elastic.multiprocessing.redirects
-# This warning is aggressive and unfixable on Windows, so we mute the logger.
+# === SOVEREIGN BOOT SEQUENCE ===
+# 1. Resolve Namespace Friction: Statically select the high-performance distribution.
+warnings.filterwarnings("ignore", message="Multiple distributions found for package modelopt")
+try:
+    from importlib.metadata import requires
+    requires("nvidia-modelopt")
+except Exception:
+    pass
+
+# 2. Silence Network Friction: Mute distributed heartbeats.
 logging.getLogger("torch.distributed.elastic.multiprocessing.redirects").setLevel(logging.ERROR)
 
 import uuid
@@ -51,36 +60,100 @@ async def health():
 async def preload_model(model: str = "flux-4b"):
     """Preload a model into GPU memory."""
     from model_manager import swapper
+    print(f"[PRELOAD] Requested: {model}")
     try:
-        if model == "flux-4b":
-            swapper.load_flux("4b")
-        elif model == "flux-9b":
+        # Clean string to avoid matching issues
+        model_id = model.strip().lower()
+        
+        if "9b-gguf" in model_id:
+            print("[PRELOAD] Target Identified: FLUX-9B (GGUF)")
+            swapper.load_flux("flux-9b-gguf")
+        elif "9b" in model_id:
+            print("[PRELOAD] Target Identified: FLUX-9B (Safetensors)")
             swapper.load_flux("9b")
-        elif model == "qwen":
+        elif "4b" in model_id:
+            print("[PRELOAD] Target Identified: FLUX-4B")
+            swapper.load_flux("4b")
+        elif "qwen" in model_id:
+            print("[PRELOAD] Target Identified: QWEN")
             swapper.load_qwen()
         else:
             return {"status": "error", "error": f"Unknown model: {model}"}
+            
         return {
             "status": "loaded",
-            "model": model,
+            "model": swapper.current,
             "vram": swapper.get_vram_usage()
         }
     except Exception as e:
+        print(f"[PRELOAD] ERROR: {e}")
         return {"status": "error", "error": str(e)}
 
 
 @app.post("/api/offload")
 async def offload_models():
-    """Offload all models from GPU to CPU."""
+    """Offload all models from GPU to CPU and release memory."""
     from model_manager import swapper
     try:
-        swapper.offload_current()
+        swapper.offload_current(hard_purge=True)
         return {
             "status": "offloaded",
             "vram": swapper.get_vram_usage()
         }
     except Exception as e:
         return {"status": "error", "error": str(e)}
+
+
+@app.post("/api/purge")
+async def purge_cache():
+    """
+    PURGE PROTOCOL: Clear HuggingFace cache and system temp files.
+    Reclaims storage consumed by diffusers downloads and pip residue.
+    """
+    import shutil
+    import tempfile
+    
+    purged_paths = []
+    errors = []
+    
+    # 1. HuggingFace Cache (~/.cache/huggingface)
+    hf_cache = Path.home() / ".cache" / "huggingface"
+    if hf_cache.exists():
+        try:
+            shutil.rmtree(hf_cache, ignore_errors=True)
+            purged_paths.append(str(hf_cache))
+        except Exception as e:
+            errors.append(f"HF Cache: {e}")
+    
+    # 2. Torch Hub Cache (~/.cache/torch)
+    torch_cache = Path.home() / ".cache" / "torch"
+    if torch_cache.exists():
+        try:
+            shutil.rmtree(torch_cache, ignore_errors=True)
+            purged_paths.append(str(torch_cache))
+        except Exception as e:
+            errors.append(f"Torch Cache: {e}")
+    
+    # 3. System Temp (Selective - only our pip/torch residue)
+    temp_dir = Path(tempfile.gettempdir())
+    for pattern in ["pip-*", "torch*", "tmp*"]:
+        for item in temp_dir.glob(pattern):
+            try:
+                if item.is_dir():
+                    shutil.rmtree(item, ignore_errors=True)
+                else:
+                    item.unlink(missing_ok=True)
+                purged_paths.append(str(item))
+            except Exception as e:
+                errors.append(f"{item.name}: {e}")
+    
+    print(f"[PURGE] Cleared {len(purged_paths)} paths. Errors: {len(errors)}")
+    
+    return {
+        "status": "purged",
+        "cleared_count": len(purged_paths),
+        "errors": errors if errors else None
+    }
 
 
 @app.websocket("/ws/telemetry")
@@ -93,11 +166,14 @@ async def telemetry_ws(websocket: WebSocket):
             # For simplicity: Push stats every 100ms
             stats = swapper.get_vram_usage()
             await websocket.send_json(stats)
-            await asyncio.sleep(0.1)
+            await asyncio.sleep(0.5)
     except Exception as e:
-        print(f"WS Disconnect: {e}")
+        print(f"WS Exception: {e}")
     finally:
-        await websocket.close()
+        try:
+            await websocket.close()
+        except Exception:
+            pass # Already closed or closing
 
 # Routes
 app.include_router(decompose_router, prefix="/api", tags=["decompose"])
@@ -110,4 +186,5 @@ app.mount("/", StaticFiles(directory=str(STATIC_DIR), html=True), name="static")
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run("server:app", host="127.0.0.1", port=8000, reload=True)
+    # CRITICAL: reload=False to prevent WinError 1450 resource exhaustion during heavy model loads
+    uvicorn.run("server:app", host="127.0.0.1", port=8000, reload=False)

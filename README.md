@@ -11,7 +11,7 @@
 ## 💎 Core Capabilities
 - **FLUX.2 Synthesis**: Hyper-realistic and prompt-adherent image generation.
 - **Intelligent Decomposition**: Automated RGBA layer extraction for granular control.
-- **Figma-Style Viewport**: A professional manifold with panning, zooming, and checkered transparency.
+- **IMMERSIVE PAN Viewport**: A professional manifold with panning, zooming, and checkered transparency.
 - **Interactive Comparison**: Split-screen "Before/After" curtain slider for real-time evaluation.
 - **Focus Mode**: A Zen-like workspace that collapses all UI for unobstructed art focus.
 - **Multi-Reference Stylization**: Transfer aesthetics from any reference image to your content.

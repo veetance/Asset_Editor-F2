@@ -5,6 +5,10 @@ Qwen-Image-Layered endpoint for RGBA layer extraction
 
 import uuid
 import torch
+import warnings
+# Suppress Pydantic 'model_' protected namespace warnings
+warnings.filterwarnings("ignore", message='.*protected namespace "model_".*')
+
 from pathlib import Path
 from fastapi import APIRouter, UploadFile, File, Form
 from fastapi.responses import JSONResponse

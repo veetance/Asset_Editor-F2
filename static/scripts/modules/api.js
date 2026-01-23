@@ -25,14 +25,16 @@ export const API = {
         return this.request('/decompose', { method: 'POST', body: formData });
     },
 
-    async txt2img(prompt, width = 1024, height = 1024, guidance = 0.0, sampler = 'euler', vramBudget = 16.0) {
+    async txt2img(prompt, width = 1024, height = 1024, guidance = 0.0, sampler = 'euler', scheduler = 'standard', vramBudget = 16.0, modelVariant = 'flux-4b') {
         const formData = new FormData();
         formData.append('prompt', prompt);
         formData.append('width', width);
         formData.append('height', height);
         formData.append('guidance', guidance);
         formData.append('sampler', sampler);
+        formData.append('scheduler', scheduler);
         formData.append('vram_budget', vramBudget);
+        formData.append('model_variant', modelVariant);
 
         return this.request('/txt2img', { method: 'POST', body: formData });
     },
@@ -59,5 +61,6 @@ export const API = {
 
     async health() { return this.request('/health'); },
     async preload(model = 'flux') { return this.request('/preload?model=' + model, { method: 'POST' }); },
-    async offload() { return this.request('/offload', { method: 'POST' }); }
+    async offload() { return this.request('/offload', { method: 'POST' }); },
+    async purge() { return this.request('/purge', { method: 'POST' }); }
 };

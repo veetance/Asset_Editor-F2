@@ -11,6 +11,17 @@ export const UI = {
         this.initFileUpload();
         this.initToggles();
         this.initGovernor();
+        this.syncFromState();
+    },
+
+    syncFromState() {
+        // Ensure VRAM budget displays match State
+        const gb = State.vramUserLimit;
+        const bar = document.getElementById('vramProgress');
+        const valText = document.getElementById('vramValue');
+
+        if (bar) bar.style.width = `${(gb / 16) * 100}%`;
+        if (valText) valText.textContent = `${gb.toFixed(0)}GB`;
     },
 
     initTabs() {
@@ -41,6 +52,7 @@ export const UI = {
         bind('genWidth', 'genWidthValue');
         bind('genHeight', 'genHeightValue');
         bind('genBatchSize', 'genBatchSizeValue');
+
 
         // Guidance Special Logic
         const gSlider = document.getElementById('genGuidance');
@@ -156,6 +168,7 @@ export const UI = {
 
                 // 2. State Update (For Logic)
                 State.vramUserLimit = gb;
+
             };
 
             const up = () => {

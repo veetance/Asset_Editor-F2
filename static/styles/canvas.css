@@ -12,7 +12,8 @@
     display: grid;
     grid-template-columns: repeat(4, 1fr);
     background: var(--bg-primary);
-    border-bottom: 1px solid var(--border);
+    border-top: 1px solid var(--border-focus);
+    border-bottom: 1px solid var(--border-focus);
 }
 
 .canvas-tabs .tab {
@@ -23,7 +24,7 @@
     color: var(--text-secondary);
     background: transparent;
     border: none;
-    border-top: 2px solid transparent;
+    border-bottom: 1px solid transparent;
     cursor: pointer;
     transition: all var(--transition-fast);
     text-transform: uppercase;

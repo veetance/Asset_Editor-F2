@@ -5,7 +5,8 @@ export const State = {
     currentMode: 'generate',
     sourceFile: null,
     cannyEdges: false,
-    vramUserLimit: 8, // GB
+    vramUserLimit: 13, // GB
+    loadedModel: null, // Track currently active model identity
 
     // UI References
     statusBar: null,

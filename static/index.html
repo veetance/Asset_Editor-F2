@@ -69,7 +69,7 @@
               <button class="btn-picker" data-model="flux-4b">LOAD</button>
             </div>
             <div class="picker-item" data-model="flux-9b">
-              <span class="model-name">FLUX Klein 9B (FP8)</span>
+              <span class="model-name">FLUX Klein 9B (Safetensors)</span>
               <button class="btn-picker" data-model="flux-9b">LOAD</button>
             </div>
             <div class="picker-item" data-model="qwen">
@@ -83,7 +83,7 @@
         <!-- VRAM Bar (Top, Purple, Interactive) -->
         <div class="telemetry-row vram-row" id="vramGovernor">
           <div class="telemetry-inner" id="vramProgress">
-            <span class="telemetry-label">GPU <span class="label-muted">16GB</span>:</span>
+            <span class="telemetry-label">GPU <span class="label-muted" id="totalVramLabel">16GB</span>:</span>
             <span class="telemetry-value" id="vramValue">8GB</span>
             <div class="governor-handle">↔</div>
           </div>
@@ -91,14 +91,14 @@
         <!-- CPU Bar (Middle, Green) -->
         <div class="telemetry-row cpu-row">
           <div class="telemetry-inner" id="cpuProgress">
-            <span class="telemetry-label">CPU <span class="label-muted">16GB</span>:</span>
+            <span class="telemetry-label">CPU <span class="label-muted">LOAD</span>:</span>
             <span class="telemetry-value" id="cpuValue">0%</span>
           </div>
         </div>
         <!-- RAM Bar (Bottom, Pink) -->
         <div class="telemetry-row ram-row">
           <div class="telemetry-inner" id="ramProgress">
-            <span class="telemetry-label">RAM <span class="label-muted">16GB</span>:</span>
+            <span class="telemetry-label">RAM <span class="label-muted" id="totalRamLabel">64GB</span>:</span>
             <span class="telemetry-value" id="ramValue">0GB</span>
           </div>
         </div>
@@ -133,22 +133,22 @@
             <div class="field">
               <label class="field-label">Width</label>
               <div class="slider-wrap">
-                <input type="range" class="slider" id="genWidth" min="512" max="1024" step="128" value="1024">
+                <input type="range" class="slider" id="genWidth" min="512" max="2048" step="128" value="1024">
                 <span class="slider-value" id="genWidthValue">1024</span>
               </div>
             </div>
             <div class="field">
               <label class="field-label">Height</label>
               <div class="slider-wrap">
-                <input type="range" class="slider" id="genHeight" min="512" max="1024" step="128" value="1024">
+                <input type="range" class="slider" id="genHeight" min="512" max="2048" step="128" value="1024">
                 <span class="slider-value" id="genHeightValue">1024</span>
               </div>
             </div>
             <div class="field field-guidance">
               <label class="field-label">Guidance</label>
               <div class="slider-wrap">
-                <input type="range" class="slider" id="genGuidance" min="0" max="10" step="0.5" value="0">
-                <span class="slider-value" id="genGuidanceValue">0.0</span>
+                <input type="range" class="slider" id="genGuidance" min="0" max="10" step="0.5" value="1">
+                <span class="slider-value" id="genGuidanceValue">1.0</span>
               </div>
               <!-- Guidance Chip (Contextual Tooltip) -->
               <div id="canvasChip" class="guidance-chip hidden">
@@ -161,9 +161,9 @@
             </div>
             <div class="field">
               <label class="field-label">Sampler</label>
-              <div class="custom-select" id="genSampler" data-value="euler">
+              <div class="custom-select" id="genSampler" data-value="flow_euler">
                 <div class="select-trigger">
-                  <span class="select-current">Euler</span>
+                  <span class="select-current">Flow-Euler</span>
                   <svg class="select-chevron" width="10" height="10" viewBox="0 0 24 24" fill="none"
                     stroke="currentColor" stroke-width="3">
                     <path d="m6 9 6 6 6-6" />
@@ -171,12 +171,33 @@
                 </div>
                 <div class="select-dropdown">
                   <div class="select-dropdown-inner">
-                    <div class="select-option active" data-value="euler">Euler</div>
+                    <div class="select-option active" data-value="flow_euler">Flow-Euler</div>
+                    <div class="select-option" data-value="euler">Euler</div>
                     <div class="select-option" data-value="euler_a">Euler Ancestral</div>
+                    <div class="select-option" data-value="dpm++_2s_a">DPM++ 2S Ancestral</div>
                     <div class="select-option" data-value="dpm++_2m">DPM++ 2M</div>
                     <div class="select-option" data-value="dpm++_2m_karras">DPM++ 2M Karras</div>
                     <div class="select-option" data-value="ddim">DDIM</div>
-                    <div class="select-option" data-value="lms">LMS</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="field">
+              <label class="field-label">Scheduler</label>
+              <div class="custom-select" id="genScheduler" data-value="standard">
+                <div class="select-trigger">
+                  <span class="select-current">Linear</span>
+                  <svg class="select-chevron" width="10" height="10" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="3">
+                    <path d="m6 9 6 6 6-6" />
+                  </svg>
+                </div>
+                <div class="select-dropdown">
+                  <div class="select-dropdown-inner">
+                    <div class="select-option active" data-value="standard">Linear</div>
+                    <div class="select-option" data-value="simple">Simple</div>
+                    <div class="select-option" data-value="beta">Beta</div>
+                    <div class="select-option" data-value="karras">Karras</div>
                   </div>
                 </div>
               </div>

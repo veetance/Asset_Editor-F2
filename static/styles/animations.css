@@ -136,27 +136,190 @@
     }
 }
 
-/* Generation Animation */
+/* Sovereign Generation Overlay */
 .gen-overlay {
     position: absolute;
     inset: 0;
-    display: grid;
-    grid-template-columns: repeat(16, 1fr);
-    grid-template-rows: repeat(16, 1fr);
-    pointer-events: none;
-    z-index: 100;
-}
-
-.gen-overlay.hidden {
-    display: none;
-}
-
-.gen-cell {
-    background: var(--bg-base);
-    opacity: 1;
-    transition: opacity 0.15s ease;
-}
-
-.gen-cell.revealed {
+    z-index: 1000;
+    background: rgba(10, 10, 10, 0.4);
+    backdrop-filter: blur(24px);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
     opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.6s cubic-bezier(0.4, 0, 0.2, 1), visibility 0.6s;
+    overflow: hidden;
+}
+
+.gen-overlay.active {
+    opacity: 1;
+    visibility: visible;
+}
+
+/* Centered Animation Loop */
+.gen-splash-loop {
+    width: 120px;
+    height: 120px;
+    position: relative;
+    margin-bottom: 40px;
+}
+
+.gen-splash-layer {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    animation: genLayerLoop 2.4s infinite;
+}
+
+.gen-splash-layer:nth-child(2) {
+    animation-delay: 0.6s;
+}
+
+.gen-splash-layer:nth-child(3) {
+    animation-delay: 1.2s;
+}
+
+.gen-splash-layer:nth-child(4) {
+    animation-delay: 1.8s;
+}
+
+.gen-splash-layer svg {
+    width: 80px;
+    stroke-width: 1.5;
+}
+
+.gen-splash-layer:nth-child(1) svg {
+    stroke: var(--color-generate);
+}
+
+.gen-splash-layer:nth-child(2) svg {
+    stroke: var(--color-stylize);
+}
+
+.gen-splash-layer:nth-child(3) svg {
+    stroke: var(--color-decompose);
+}
+
+.gen-splash-layer:nth-child(4) svg {
+    stroke: var(--color-edit);
+}
+
+@keyframes genLayerLoop {
+    0% {
+        transform: scale(0.8) translateY(20px);
+        opacity: 0;
+        filter: blur(5px);
+    }
+
+    20% {
+        transform: scale(1) translateY(0);
+        opacity: 1;
+        filter: blur(0);
+    }
+
+    50% {
+        transform: scale(1.1) translateY(-10px);
+        opacity: 0.8;
+    }
+
+    80% {
+        transform: scale(1.2) translateY(-20px);
+        opacity: 0;
+        filter: blur(10px);
+    }
+
+    100% {
+        transform: scale(1) translateY(0);
+        opacity: 0;
+    }
+}
+
+/* Bottom Middle Text Stack */
+.gen-text-stack {
+    position: absolute;
+    bottom: 60px;
+    left: 50%;
+    transform: translateX(-50%);
+    text-align: center;
+    width: 80%;
+    max-width: 600px;
+    pointer-events: none;
+}
+
+.gen-status {
+    font-family: 'Unbounded', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.2em;
+    color: var(--accent);
+    margin-bottom: 16px;
+    animation: pulseAlpha 2s infinite;
+}
+
+.gen-quote-container {
+    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.gen-quote {
+    font-size: 16px;
+    font-weight: 300;
+    line-height: 1.4;
+    color: #94a3b8;
+    font-style: italic;
+    opacity: 0;
+    transform: translateY(10px);
+    transition: opacity 0.8s ease, transform 0.8s ease;
+}
+
+.gen-quote.visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+@keyframes pulseAlpha {
+
+    0%,
+    100% {
+        opacity: 0.6;
+    }
+
+    50% {
+        opacity: 1;
+    }
+}
+
+/* Noise Reveal Protocol */
+.noise-reveal-layer {
+    position: absolute;
+    inset: 0;
+    z-index: 900;
+    background: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+    opacity: 0;
+    pointer-events: none;
+    mix-blend-mode: overlay;
+}
+
+.noise-revealing {
+    animation: noiseRevealCycle 1.2s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+@keyframes noiseRevealCycle {
+    0% {
+        opacity: 1;
+        filter: contrast(150%) brightness(150%);
+    }
+
+    100% {
+        opacity: 0;
+        filter: contrast(100%) brightness(100%);
+    }
 }

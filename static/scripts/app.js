@@ -13,6 +13,7 @@ const App = {
     init() {
         CanvasStack.init();
         Masking.init();
+        this.bindUI(); // Initialize State Observer
         this.setMode('generate');
 
         // VRAM Governor Drag Logic
@@ -280,27 +281,40 @@ const App = {
     },
 
     setMode(mode) {
-        this.currentMode = mode;
+        window.AppStore.dispatch({ type: 'SET_MODE', payload: mode });
+    },
 
-        // Update app container for CSS-driven colors
-        document.querySelector('.app').dataset.mode = mode;
+    bindUI() {
+        // Subscribe to State Changes (The DBS-CA Observer Pattern)
+        window.AppStore.subscribe((state) => {
+            const mode = state.currentMode;
 
-        // Update tabs
-        document.querySelectorAll('.tab').forEach(tab => {
-            tab.classList.toggle('active', tab.dataset.mode === mode);
+            // Update app container for CSS-driven colors
+            document.querySelector('.app').dataset.mode = mode;
+
+            // Update tabs
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.toggle('active', tab.dataset.mode === mode);
+            });
+
+            // Update control panels
+            document.querySelectorAll('.mode-controls').forEach(panel => {
+                panel.classList.add('hidden');
+            });
+            const activePanel = document.getElementById(`${mode}Controls`);
+            if (activePanel) activePanel.classList.remove('hidden');
+
+            // Update action buttons
+            const genBtn = document.getElementById('generateBtn');
+            const stylizeBtn = document.getElementById('stylizeBtn');
+            const decompBtn = document.getElementById('decomposeBtn');
+            const editBtn = document.getElementById('editBtn');
+
+            if (genBtn) genBtn.classList.toggle('hidden', mode !== 'generate');
+            if (stylizeBtn) stylizeBtn.classList.toggle('hidden', mode !== 'stylize');
+            if (decompBtn) decompBtn.classList.toggle('hidden', mode !== 'decompose');
+            if (editBtn) editBtn.classList.toggle('hidden', mode !== 'edit');
         });
-
-        // Update control panels
-        document.querySelectorAll('.mode-controls').forEach(panel => {
-            panel.classList.add('hidden');
-        });
-        document.getElementById(`${mode}Controls`).classList.remove('hidden');
-
-        // Update action buttons
-        document.getElementById('generateBtn').classList.toggle('hidden', mode !== 'generate');
-        document.getElementById('stylizeBtn').classList.toggle('hidden', mode !== 'stylize');
-        document.getElementById('decomposeBtn').classList.toggle('hidden', mode !== 'decompose');
-        document.getElementById('editBtn').classList.toggle('hidden', mode !== 'edit');
     },
 
     handleFile(file) {
@@ -472,9 +486,9 @@ const App = {
             const pickerButtons = document.querySelectorAll('.btn-picker');
 
             if (health.vram) {
-                const currentModel = health.vram.current_model;
-                const totalVramGb = health.vram.total_gb || 16.0;
-                const totalRamGb = 32.0;
+                const currentModel = health.vram.model;
+                const totalVramGb = health.vram.vram_total || 16.0;
+                const totalRamGb = 64.0;
 
                 const currentVram = health.vram.allocated_gb || 0;
                 const currentRam = health.vram.ram_used_gb || 0;
@@ -555,11 +569,17 @@ document.addEventListener('DOMContentLoaded', async () => {
     // Check initial health
     await App.checkHealth();
 
+    // Sovereign Boot Protocol: Ensure at least one full splash cycle completes
+    if (window.Splash && window.Splash.cycleComplete) {
+        console.log("[DEUS] Sovereign Boot: Awaiting Splash cycle completion...");
+        await window.Splash.cycleComplete;
+    }
+
     // Hide splash screen
     const splash = document.getElementById('splash');
     if (splash) {
-        // Short delay for aesthetics
-        setTimeout(() => splash.classList.add('hidden'), 500);
+        // Short delay for high-fidelity transition
+        setTimeout(() => splash.classList.add('hidden'), 3000);
     }
 
     // Continue health polling

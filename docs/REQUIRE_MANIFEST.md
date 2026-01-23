@@ -13,17 +13,16 @@ Inject these into your `venv` to weaponize the engine:
 - `xformers`: For memory-efficient attention (40-series gear).
 - `python-multipart`: For image uploads.
 
-## 💾 STORAGE MANIFEST (D: DRIVE) - ~23.4 GB
-These are the core localized weights on your high-speed drive:
-1. **Qwen-Image-Layered-Q5_0.gguf** (~12.3 GB): The deconstruction engine (Quantized for 16GB VRAM fit).
+## 💾 STORAGE MANIFEST (E: DRIVE)
+These are the core localized weights on your high-speed sovereign manifold:
+1. **Qwen-Image-Layered-Q5_0.gguf** (~12.3 GB): The deconstruction engine.
 2. **Qwen-VAE** (~1.1 GB): Mission-critical for layered synthesis.
-3. **FLUX.2-klein-9B-Q8_0.gguf** (~10.0 GB): The unsloth-tuned synthesis heart.
+3. **FLUX.2-Klein-9B (Safetensors)**: Unified in `models/flux-klein/`.
+4. **FLUX.2-Klein-4B (Safetensors)**: Unified in `models/flux-klein/`.
 
-## 👻 GHOST LINKAGE PROTOCOL (C: DRIVE LINKS)
-To preserve drive sovereignty, we leverage existing terrestrial assets:
-- **CLIP-L**: `C:\MAIN-COMFY\ComfyUI\models\clip\clip-vit-large-patch14`
-- **T5-XXL (GGUF)**: `C:\MAIN-COMFY\ComfyUI\models\clip\t5-v1_1-xxl-encoder-Q3_K_S.gguf`
-- **FLUX VAE**: `C:\MAIN-COMFY\ComfyUI\models\vae\flux-vae-bf16.safetensors`
+### 🛡️ ENVIRONMENT SANITIZATION
+To prevent boot-time scan delays (Silicon Friction), the manifold **statically selects** the official `nvidia-modelopt` distribution at the entry point (`server.py`). This eliminates redundant scans without requiring package deletion.
+- **Protocol**: Static Pinning via `pkg_resources.require("nvidia-modelopt")`.
 
 ## 🚀 INITIALIZATION SEQUENCE
 1. **Prepare Venv**:
@@ -44,6 +43,15 @@ To preserve drive sovereignty, we leverage existing terrestrial assets:
    ```powershell
    python server.py
    ```
+
+## 🌐 NETWORK SOVEREIGNTY (AIR-GAPPED LOGIC)
+The manifold operates under a strict **Off-Cloud Protocol**. 
+- **Zero Handshakes**: The engine does not talk to the internet during runtime. 
+- **Plugging HF Leaks**: By using local `model_index.json` and manual component assembly, we have eliminated implicit calls to the HuggingFace Hub.
+- **Result**: The manifold is now "air-gapped" logic-wise. It fires instantly because it never waits for a handshake from the cloud.
+
+> [!IMPORTANT]
+> Internet access is only requisitioned for initial model injection (`download_models.py`) or when the lead developer (MrVee) determines an update is necessary.
 
 ## 🧠 VRAM MANAGEMENT
 The engine is architected as a **Singleton Swapper**. It will offload model A to CPU before engaging model B on GPU, ensuring your 16GB manifold is never over-pressurized.

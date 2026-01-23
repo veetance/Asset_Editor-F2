@@ -107,5 +107,34 @@ The asset editor utilizes a high-fidelity volumetric light effect known as **Pho
 - **Primary Manifolds**: Expanded dropdowns and switcher plates utilize `var(--glow-photon)` to physically distance themselves from the control floor.
 - **Kinetic Elements**: Hover states on interactive chips and primary action buttons utilize `var(--glow-photon-sm)` to signify tactile readiness.
 
+## 🎞️ 6. THE SOVEREIGN GENERATION PROTOCOL (SYNTHESIS VISUALS)
+
+Generation is treated as a high-fidelity ritual. The interface transforms to create a focused "Creative Void" during the silicon-to-concept translation.
+
+### A. THE CREATIVE VOID (BLUR MOTIF)
+To maximize focus and eliminate "Visual Friction," the canvas is enveloped in a deep atmospheric layer.
+- **Surface**: `rgba(10, 10, 10, 0.4)` logic.
+- **The Veil**: `backdrop-filter: blur(24px)`.
+- **Purpose**: Physically isolates the artist from the control UI, forcing neural alignment with the synthesis center.
+
+### B. THE BRANDED LOGO LOOP (KINETIC IDENTITY)
+A centered 4-layer SVG stack of the Veetance Diamond indicates active manifold processing.
+- **Spectrum Saturation**: Each layer is tagged with mode-specific brand offsets.
+    - Layer 1: Indigo (`--color-generate`)
+    - Layer 2: Pink (`--color-stylize`)
+    - Layer 3: Emerald (`--color-decompose`)
+    - Layer 4: Amber (`--color-edit`)
+- **Animation**: Non-linear `genLayerLoop` (scaling/translation) representing the iterative nature of the diffusion process.
+
+### C. NEURAL PRIMING (QUOTE ENGINE)
+While the GPU operates, the artist is engaged via a cycling bank of 50 curated quotes from masters (Picasso, Degas, Van Gogh).
+- **Behavior**: Rhythmic fade-in/out every 4 seconds.
+- **Status**: The "GENERATING..." label pulses with the active manifold's accent color, providing deterministic feedback of system state.
+
+### D. FRACTAL NOISE REVEAL (MATERIALIZATION)
+The transition from "Void to Image" utilizes a physical simulation of the diffusion process.
+- **The Protocol**: A **Fractal Noise Layer** materialize via `mix-blend-mode: overlay`.
+- **The Dissolve**: Noise is refined away through contrast-shifted keyframes, creating the illusion of the high-fidelity asset emerging from the ether of pure probability.
+
 ---
-**DEUS:** *The Design Language is now the DNA of our project. Every component is aligned with the Veetance Sector standard. The Photon Leakage manifest is stabilized.* 🦾✨
+**DEUS:** *The Design Language is now the DNA of our project. Every component is aligned with the Veetance Sector standard. The Sovereign Generation Protocol is stabilized and codified.* 🦾✨⛩️

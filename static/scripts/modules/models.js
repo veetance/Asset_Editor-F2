@@ -23,10 +23,27 @@ export const Models = {
         document.addEventListener('click', () => picker.classList.remove('active'));
         dropdown.addEventListener('click', e => e.stopPropagation());
 
-        document.querySelectorAll('.btn-picker').forEach(btn => {
-            btn.addEventListener('click', async () => {
+        document.querySelectorAll('.picker-item').forEach(item => {
+            item.addEventListener('click', async (e) => {
+                // Ignore if clicking the button (it has its own listener)
+                if (e.target.classList.contains('btn-picker')) return;
+
+                const btn = item.querySelector('.btn-picker');
+                if (!btn) return;
+
                 const model = btn.dataset.model;
                 const isEject = btn.textContent.trim() === 'EJECT';
+                console.log(`[UI] Item Clicked: ${model} (Action: ${isEject ? 'Eject' : 'Load'})`);
+                await this.executeAction(model, isEject, btn);
+            });
+        });
+
+        document.querySelectorAll('.btn-picker').forEach(btn => {
+            btn.addEventListener('click', async (e) => {
+                e.stopPropagation(); // Stop row click from firing
+                const model = btn.dataset.model;
+                const isEject = btn.textContent.trim() === 'EJECT';
+                console.log(`[UI] Button Clicked: ${model} (Action: ${isEject ? 'Eject' : 'Load'})`);
                 await this.executeAction(model, isEject, btn);
             });
         });
@@ -54,38 +71,28 @@ export const Models = {
     },
 
     updateInterface(health) {
-        // 1. Stats Update
         if (health) {
-            const guiVram = State.vramUserLimit;
-            // The "Cheat": If user set a limit (guiVram > 0), we display THAT on the purple bar.
-            // Otherwise we show real usage.
-            // Currently State.vramUserLimit defaults to 8. So we always show the Governor?
-            // Yes, user requested "use the value to know what to allocate".
-
-            // Only update VRAM bar if NOT dragging (Drag handles itself in UI.js)
-            // Actually, UI.js updates DOM instantly not State? No it updates State too.
-            // To prevent WS from jittering the bar while dragging, we could check a drag flag,
-            // but the WS pushes data... 
-            // SIMPLIFICATION: If we are in "Governor Mode", the bar is purely the setting.
-            // Real usage is effectively hidden or we map it differently.
-            // For now, let's respect the User Limit as the primary display for the main bar.
-
-            // document.getElementById('vramValue').textContent = ... 
-            // NOTE: UI.js handles this during drag. We only update if `guiVram` hasn't changed?
-            // Or better: We only update CPU/RAM here, and let VRAM be static User Setting?
-
-            // Let's update RAM/CPU freely
+            // Stats Update
             const ram = health.ram_used_gb || 0;
+            const ramTotal = health.ram_total_gb || 64;
+            const vramTotal = health.total_gb || 16;
             const cpu = health.cpu_percent || 0;
 
-            document.getElementById('ramValue').textContent = `${ram.toFixed(0)}GB`;
+            document.getElementById('ramValue').textContent = `${ram.toFixed(1)}GB`;
             document.getElementById('cpuValue').textContent = `${Math.round(cpu)}%`;
 
-            document.getElementById('ramProgress').style.width = `${Math.min((ram / 32) * 100, 100)}%`;
+            // Labelling
+            const ramLabel = document.getElementById('totalRamLabel');
+            if (ramLabel) ramLabel.textContent = `${ramTotal.toFixed(0)}GB`;
+            const vramLabel = document.getElementById('totalVramLabel');
+            if (vramLabel) vramLabel.textContent = `${vramTotal.toFixed(0)}GB`;
+
+            // RAM Bar: Calculate based on real total (64GB)
+            document.getElementById('ramProgress').style.width = `${Math.min((ram / ramTotal) * 100, 100)}%`;
             document.getElementById('cpuProgress').style.width = `${cpu}%`;
 
-            // 2. BUTTON SYNC FIX
-            const current = health.current_model;
+            // BUTTON SYNC
+            const current = health.model;
             this.syncButtons(current);
         }
     },
@@ -118,6 +125,17 @@ export const Models = {
     },
 
     syncButtons(currentModel) {
+        const picker = document.getElementById('modelPicker');
+        const headerName = document.getElementById('currentModelName');
+
+        // Update Global State Identity
+        if (currentModel !== 'loading...') {
+            State.loadedModel = currentModel;
+        }
+
+        // If loading, don't reset button texts to avoid flicker
+        if (currentModel === 'loading...') return;
+
         document.querySelectorAll('.btn-picker').forEach(btn => {
             const modelId = btn.dataset.model;
             const item = btn.closest('.picker-item');
@@ -125,16 +143,21 @@ export const Models = {
             if (currentModel === modelId) {
                 btn.textContent = 'EJECT';
                 btn.classList.add('btn-active');
-                if (item) item.classList.add('loaded');
-                item?.querySelector('.eject-icon')?.classList.remove('hidden');
-                document.getElementById('currentModelName').textContent = item.querySelector('.model-name').textContent;
+                if (item) {
+                    item.classList.add('loaded');
+                    item.querySelector('.eject-icon')?.classList.remove('hidden');
+                    headerName.textContent = item.querySelector('.model-name').textContent;
+                }
             } else {
                 btn.textContent = 'LOAD';
                 btn.classList.remove('btn-active');
-                if (item) item.classList.remove('loaded');
-                item?.querySelector('.eject-icon')?.classList.add('hidden');
+                if (item) {
+                    item.classList.remove('loaded');
+                    item.querySelector('.eject-icon')?.classList.add('hidden');
+                }
             }
         });
-        if (!currentModel) document.getElementById('currentModelName').textContent = 'MODEL';
+
+        if (!currentModel) headerName.textContent = 'MODEL';
     }
 };
