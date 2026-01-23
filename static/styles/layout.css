@@ -259,8 +259,8 @@
 }
 
 .vram-row .telemetry-inner {
-    background: rgba(99, 102, 241, 0.8);
-    /* 80% Opacity Indigo */
+    background: rgba(99, 102, 241, 0.4);
+    /* 40% Opacity Indigo (Reduced from 80%) */
     color: #eef1ff;
     cursor: ew-resize;
     padding-right: 28px;
@@ -278,8 +278,8 @@
 }
 
 .ram-row .telemetry-inner {
-    background: rgba(16, 185, 129, 0.5);
-    /* 50% opacity theme green */
+    background: rgba(16, 185, 129, 0.25);
+    /* 25% opacity theme green (Reduced from 50%) */
     color: #edfff9;
 }
 
@@ -294,8 +294,8 @@
 }
 
 .cpu-row .telemetry-inner {
-    background: rgba(245, 158, 11, 0.5);
-    /* 50% opacity theme amber */
+    background: rgba(245, 158, 11, 0.25);
+    /* 25% opacity theme amber (Reduced from 50%) */
     color: #fffbed;
 }
 
@@ -629,7 +629,6 @@
     color: var(--text-secondary);
     background: transparent;
     border: none;
-    border-bottom: 2px solid transparent;
     cursor: pointer;
     transition: all var(--transition-fast);
     text-transform: uppercase;

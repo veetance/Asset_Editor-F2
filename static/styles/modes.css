@@ -3,43 +3,43 @@
 /* Primary Tabs Accents */
 .tab[data-mode="generate"].active {
     color: var(--color-generate);
-    border-bottom-color: var(--color-generate);
+    border-bottom: none;
     background: var(--color-generate-glow);
 }
 
 .tab[data-mode="decompose"].active {
     color: var(--color-decompose);
-    border-bottom-color: var(--color-decompose);
+    border-bottom: none;
     background: var(--color-decompose-glow);
 }
 
 .tab[data-mode="edit"].active {
     color: var(--color-edit);
-    border-bottom-color: var(--color-edit);
+    border-bottom: none;
     background: var(--color-edit-glow);
 }
 
 /* Canvas Tabs Accents */
 .canvas-tabs .tab[data-mode="generate"].active {
     color: var(--color-generate);
-    border-bottom-color: var(--color-generate);
+    border-bottom: none;
     background: var(--color-generate-glow);
 }
 
 .canvas-tabs .tab[data-mode="stylize"].active {
     color: var(--color-stylize);
-    border-bottom-color: var(--color-stylize);
+    border-bottom: none;
     background: var(--color-stylize-glow);
 }
 
 .canvas-tabs .tab[data-mode="decompose"].active {
     color: var(--color-decompose);
-    border-bottom-color: var(--color-decompose);
+    border-bottom: none;
     background: var(--color-decompose-glow);
 }
 
 .canvas-tabs .tab[data-mode="edit"].active {
     color: var(--color-edit);
-    border-top-color: var(--color-edit);
+    border-bottom: none;
     background: var(--color-edit-glow);
 }

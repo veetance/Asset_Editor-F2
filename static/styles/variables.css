@@ -38,6 +38,13 @@
   --Purble40: hsl(238, 38%, 18%);
   --Purble20: hsl(236, 36%, 9%);
 
+  /* PURBLE PRIMARY AND ITS Pastel Shades */
+  --PurblePastel100: hsl(239, 100%, 87%);
+  --PurblePastel80: rgb(163, 165, 228);
+  --PurblePastel60: rgb(115, 117, 212);
+  --PurblePastel40: hsl(239, 87%, 70%);
+  --PurblePastel20: hsl(239, 47%, 51%);
+
   /* PINK PRIMARY AND ITS SHADES */
   --Pink100: hsl(329, 84%, 67%);
   --Pink80: hsl(329, 39%, 49%);

@@ -14,6 +14,16 @@ This session focused on the "Bare Metal" philosophy—stripping away visual clut
 - **Palette**: Stripped all "White" states. Controls now live in a **Grey (#666) -> Purple (Branded)** sequence.
 - **Entropy Purge**: Deleted redundant legacy CSS definitions, consolidating the control stack.
 
+### 3. CINEMATIC ACTION MANIFOLD (The Interaction Win)
+- **Geometry**: Liberated action buttons from "Hard Locks" using dynamic CSS variables (`--btn-h`).
+- **Composition**: Implemented top-left text justification with the **Layer Stack (Cube)** icon on the far-right.
+- **Visual Depth**: Transitioned to a `Purble` spectrum palette (Purble60 -> Purble20 on hover).
+
+### 4. TELEMETRY NOISE REDUCTION (The Aesthetic Win)
+- **Protocol**: Reduced telemetry bar background opacity by 50% (VRAM 40% alpha, CPU/RAM 25%).
+- **Result**: Neutralized "Color Mass" dominance while maintaining 100% text legibility.
+- **Synthesis**: The headers now feel integrated into the "Mission Control" shell rather than floating over it.
+
 ## 🦾 THE VICTORIES: STABILITY & AESTHETICS
 This session focused on transforming the project from a "Crashing Prototype" into a "Sovereign Artistic Instrument." We stabilized the neural backbone and codified the project's visual DNA.
 

@@ -68,11 +68,18 @@
 }
 
 .panel-action {
-    padding: var(--space-sm) var(--space-lg);
-    /* Reduced for cinematic tightness */
+    --btn-h: calc(100% + 4rem);
+    padding: 6px;
+    /* Cinematic breathing room */
     background: var(--Purble40);
     border-top: 1px solid var(--border);
     flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    height: auto;
+    min-height: calc(var(--btn-h) + 0);
+    gap: 8px;
 }
 
 /* Form Controls */
@@ -380,7 +387,7 @@
     position: absolute;
     inset: 0;
     background: radial-gradient(circle 50px at var(--mouse-x) var(--mouse-y),
-            var(--accent),
+            rgba(177, 149, 255, 0.719),
             transparent 85%);
     opacity: 0;
     transition: opacity var(--transition-base);
@@ -405,21 +412,48 @@
 }
 
 .btn-primary {
-    color: #fff;
-    background: var(--accent-surface);
-    border-color: var(--accent);
+    color: var(--PurblePastel80);
+    background: var(--Purble60);
+    border-color: var(--Purble60);
     backdrop-filter: blur(4px);
+    height: var(--btn-h);
+    /* Derived from action manifold variable */
+    width: 100%;
+
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    padding: 10px 14px;
+    text-align: left;
+}
+
+.btn-primary span {
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 0.15em;
+    margin-top: 1px;
+}
+
+.btn-primary svg {
+    margin-top: 1px;
+}
+
+.btn-primary:active {
+    transform: translateY(0px) translateZ(-4px);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    background: var(--Purble40) !important;
 }
 
 .btn-primary:hover {
-    background: var(--accent);
-    color: #000;
+    background: var(--Purble20);
+    color: var(--Purble100);
+    border-color: var(--Purble60);
     box-shadow: 0 0 25px var(--accent-glow);
 }
 
 .btn-primary::before {
     background: radial-gradient(circle 80px at var(--mouse-x) var(--mouse-y),
-            rgba(255, 255, 255, 0.5),
+            rgba(163, 130, 255, 0.712),
             transparent 90%);
 }
 

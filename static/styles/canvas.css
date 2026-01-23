@@ -13,7 +13,7 @@
     grid-template-columns: repeat(4, 1fr);
     background: var(--bg-primary);
     border-top: 1px solid var(--border-focus);
-    border-bottom: 1px solid var(--border-focus);
+    border-bottom: none;
 }
 
 .canvas-tabs .tab {
@@ -24,11 +24,15 @@
     color: var(--text-secondary);
     background: transparent;
     border: none;
-    border-bottom: 1px solid transparent;
+    border-right: 1px solid var(--border);
     cursor: pointer;
     transition: all var(--transition-fast);
     text-transform: uppercase;
     letter-spacing: 0.1em;
+}
+
+.canvas-tabs .tab:last-child {
+    border-right: none;
 }
 
 .canvas-tabs .tab:hover {

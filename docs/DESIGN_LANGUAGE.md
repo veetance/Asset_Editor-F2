@@ -117,6 +117,14 @@ The asset editor utilizes a high-fidelity volumetric light effect known as **Pho
 - **The Segmented Footer**: Replaces the global "Earth-style" footer with panel-integral components.
     - **Alignment**: Pinned to `panel-left` and `panel-right` via `margin-top: auto`.
     - **Visuals**: Primary focus remains on the canvas; the footer segments provide low-noise technical metadata.
+- **Cinematic Action Buttons**: Standardized primary triggers for neural synthesis.
+    - **Geometry**: Variable-height manifold (`--btn-h`) with top-left text justification.
+    - **Palette**: `Purble60` background transitioning to `Purble20` on hover.
+    - **Iconography**: Signature **Layer Stack (Cube)** icon on the far-right, creating structural tension.
+- **Optimized Telemetry**: Real-time silicon monitoring with reduced visual noise.
+    - **VRAM**: 40% indigo alpha.
+    - **CPU/RAM**: 25% thematic alpha.
+    - **Rationale**: Minimizes "color bleed" into the workspace while maintaining critical data legibility.
 
 ## 🎞️ 6. THE SOVEREIGN CREATION PROTOCOL (SYNTHESIS VISUALS)
 
