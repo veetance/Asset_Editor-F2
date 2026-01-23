@@ -33,135 +33,125 @@ class SovereignCarrier:
     @classmethod
     def execute_flux_4b(cls, pipe, prompt, device="cuda", **kwargs):
         """
-        Engages the 4B Sovereign Speed Manifold.
-        Optimized for 16GB VRAM: Full Residency + Prompt Caching.
+        Engages the 4B Sovereign Speed V2 Manifold (Sequential Alpha).
+        Strategy: Sequential Silicon Migration (TE -> TR -> VAE).
         """
         import time
         t0 = time.time()
-        print("[CARRIER] Engaging 4B Sovereign Speed Manifold...")
+        print("[CARRIER] Engaging 4B Sovereign Speed V2 (Sequential Alpha)...")
         
-        # 1. BRAIN RESIDENCY: Keep everything on GPU
-        # We only move if absolutely necessary (first run)
-        if pipe.text_encoder.device.type != "cuda":
-            print("[BRAIN] Pinning Text Encoder to Silicon...")
-            from accelerate.hooks import remove_hook_from_module
-            remove_hook_from_module(pipe.text_encoder, recurse=True)
-            pipe.text_encoder.to(device)
-            
-        if pipe.transformer.device.type != "cuda":
-            print("[BRAIN] Pinning Transformer to Silicon (Standby: FP8)...")
-            # Move and enforce FP8 to ensure we fit in the 16GB bucket along with other components
-            pipe.transformer.to(device=device, dtype=torch.float8_e4m3fn)
-            
-        if pipe.vae.device.type != "cuda":
-            # Just verify logic, we will move it during decode
-            pipe.vae.disable_tiling()
-            pipe.vae.disable_slicing()
-        else:
-            # Move to CPU to clear space for Inference
-            pipe.vae.to("cpu")
-            torch.cuda.empty_cache()
-
-        torch.cuda.synchronize()
-
-        # 2. PROMPT CACHING LAYER
+        # -------------------------------------------------------------
+        # PATH 1: THE CACHE SENTINEL (TE BYPASS)
+        # -------------------------------------------------------------
+        prompt_embeds = None
+        pooled_prompt_embeds = None
+        
         if prompt == cls._last_prompt and cls._last_embeds is not None:
-            print("[BRAIN] Prompt Cache Hit. Skipping encoding pass.")
+            print("[BRAIN] Prompt Cache Hit. ZERO-SHOT encoding.")
             prompt_embeds = cls._last_embeds
             pooled_prompt_embeds = cls._last_pooled
-            # Safety: Ensure TE is offloaded even on cache hits if it was left there
-            if pipe.text_encoder.device.type == "cuda":
-                pipe.text_encoder.to("cpu")
-                torch.cuda.empty_cache()
         else:
-            print("[BRAIN] Prompt Cache Miss. Executing Sovereign Ignition...")
-            t_enc_start = time.time()
+            print("[BRAIN] Prompt Cache Miss. Mobilizing Text Encoder...")
+            t_enc = time.time()
+            
+            # MIGRATE TE
+            pipe.text_encoder.to(device)
+            torch.cuda.synchronize()
+            
             try:
                 with torch.no_grad():
                     prompt_embeds, pooled_prompt_embeds = pipe.encode_prompt(
                         prompt=prompt,
                         device=torch.device(device)
                     )
-                torch.cuda.synchronize()
-                print(f"[PROFILE] Prompt Encoding Time: {time.time() - t_enc_start:.2f}s")
-                
-                # Update Cache
-                cls._last_prompt = prompt
-                cls._last_embeds = prompt_embeds
-                cls._last_pooled = pooled_prompt_embeds
-
-                # TRITON FIX: Offload TE back to CPU immediately to free ~2.6GB
-                # This prevents hitting the 16GB limit and triggering Shared Memory slowness.
-                print("[BRAIN] Vacating Text Encoder silicon to provide inference headroom...")
-                pipe.text_encoder.to("cpu")
-                torch.cuda.empty_cache()
-
             except Exception as e:
                 print(f"[ERROR] Encoding failure: {e}")
+                pipe.text_encoder.to("cpu") # Safety eject
                 raise e
 
-        # 3. Silicon Checksum
+            # EJECT TE
+            pipe.text_encoder.to("cpu")
+            torch.cuda.empty_cache() # HARD PURGE
+            
+            # CACHE
+            cls._last_prompt = prompt
+            cls._last_embeds = prompt_embeds
+            cls._last_pooled = pooled_prompt_embeds
+            
+            print(f"[PROFILE] TE Logic: {time.time() - t_enc:.2f}s")
+
+        # -------------------------------------------------------------
+        # PATH 2: NATIVE BF16 MIGRATION (THE CORE)
+        # -------------------------------------------------------------
+        print("[CARRIER] Migrating Transformer (BF16) to Silicon...")
+        t_tr = time.time()
+        
+        # Prepare Inputs on Silicon
         prompt_embeds = prompt_embeds.to(device, dtype=torch.bfloat16)
         pooled_prompt_embeds = pooled_prompt_embeds.to(device, dtype=torch.bfloat16)
-
-        # 4. Sovereign Execution
-        print("[CARRIER] Executing Inference Loop...")
-        t_inf_start = time.time()
         
-        # Protect components
+        # MIGRATE TR
+        # NATIVE MIGRATION: No casting. Speed = PCIe Gen4 Bandwidth.
+        pipe.transformer.to(device) 
+        torch.cuda.synchronize()
+        
+        # Protective Shim
         _te = pipe.text_encoder
         _tok = pipe.tokenizer
         pipe.text_encoder = None
         pipe.tokenizer = None
-
+        
         try:
-            # SILICON BREATHING: Expand to BF16 for math
-            print("[BRAIN] Expanding Transformer to BF16 for high-velocity math...")
-            pipe.transformer.to(dtype=torch.bfloat16)
-            torch.cuda.synchronize()
-
+            print("[CARRIER] Executing Inference Loop (Frozen BF16)...")
             with torch.inference_mode():
+                 # PATH 3: ADAPTIVE SHIFT (Handled by generator.py set_scheduler)
                 latents = pipe(
                     prompt=None,
                     prompt_embeds=prompt_embeds,
+                    # pooled_prompt_embeds=pooled_prompt_embeds, # REJECTED by Pipeline Signature
                     output_type="latent",
                     return_dict=False,
                     **kwargs
                 )[0]
-            torch.cuda.synchronize()
-            print(f"[PROFILE] Inference Time: {time.time() - t_inf_start:.2f}s")
-            
-            # SILICON BREATHING: Contract back to FP8 to vacate space for VAE
-            print("[BRAIN] Contracting Transformer to FP8 to vacate silicon...")
-            pipe.transformer.to(dtype=torch.float8_e4m3fn)
-            torch.cuda.empty_cache()
-            
-            # 5. Precision Decode (Direct GPU)
-            t_dec_start = time.time()
-            print("[CARRIER] Mobilizing VAE for Decode (Silicon)...")
-            pipe.vae.to(device)
-            torch.cuda.synchronize()
-            
-            print("[CARRIER] Decoding Latents...")
-            latents = latents.detach().to(dtype=torch.float32)
-            image = pipe.vae.decode(latents, return_dict=False)[0]
-            image = image.detach()
-            image = pipe.image_processor.postprocess(image, output_type="pil")
-            torch.cuda.synchronize()
-            print(f"[PROFILE] VAE Decode Time: {time.time() - t_dec_start:.2f}s")
-            
-            print(f"[PROFILE] Total Sovereign Time: {time.time() - t0:.2f}s")
-
-            class Result:
-                def __init__(self, images):
-                    self.images = images
-            
-            return Result(image)
-
         finally:
+            # Restore Shim
             pipe.text_encoder = _te
             pipe.tokenizer = _tok
-            # No offload. No Vacate. Pure Residency.
+            
+            # EJECT TR
+            print("[CARRIER] Purging Transformer...")
+            pipe.transformer.to("cpu")
+            torch.cuda.empty_cache() # HARD PURGE
+            
+        print(f"[PROFILE] Transformer Logic: {time.time() - t_tr:.2f}s")
+        
+        # -------------------------------------------------------------
+        # PATH 4: SURGICAL PIXEL ASSEMBLY (VAE)
+        # -------------------------------------------------------------
+        print("[CARRIER] Mobilizing VAE for Decode...")
+        t_vae = time.time()
+        
+        # MIGRATE VAE
+        pipe.vae.to(device)
+        torch.cuda.synchronize()
+        
+        latents = latents.detach().to(dtype=torch.float32)
+        image = pipe.vae.decode(latents, return_dict=False)[0]
+        image = image.detach()
+        image = pipe.image_processor.postprocess(image, output_type="pil")
+        
+        # EJECT VAE
+        pipe.vae.to("cpu")
+        torch.cuda.empty_cache() # HARD PURGE
+        
+        print(f"[PROFILE] VAE Logic: {time.time() - t_vae:.2f}s")
+        print(f"[PROFILE] Total Sovereign Time: {time.time() - t0:.2f}s")
+
+        class Result:
+            def __init__(self, images):
+                self.images = images
+        
+        return Result(image)
 
     @staticmethod
     def execute_flux_managed(pipe, **kwargs):

@@ -54,11 +54,12 @@ def build_4b_pipeline():
         local_files_only=True
     )
 
-    # OPTIMIZATION: Bandwidth Hack [BF16 -> FP8]
-    # Reduces RAM footprint from 5GB to 2.5GB and doubles transfer speed.
-    print("[LOADER] Executing Bandwidth Hack: Converting Transformer to FP8...")
-    transformer.to(device="cuda", dtype=torch.float8_e4m3fn)
-    transformer.to("cpu")
+    # OPTIMIZATION: Sequential Alpha Protocol [BF16 Managed]
+    # We keep the transformer in BF16 on CPU. Carrier handles migration.
+    # NO FP8 CASTING HERE.
+    print("[LOADER] Sequential Alpha Protocol: Transformer remains in BF16 (CPU)...")
+    # transformer.to(device="cuda", dtype=torch.float8_e4m3fn)
+    # transformer.to("cpu")
     torch.cuda.empty_cache()
 
     # 4. Inject VAE (Stability Fix: Float32 weights)
