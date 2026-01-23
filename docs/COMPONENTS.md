@@ -18,18 +18,31 @@ Foundational elements present in every mode.
 
 ---
 
-## 🌑 MODE: GENERATE (Txt2Img)
+## 🌑 MODE: CREATE (Txt2Img)
 The primary synthesis manifold.
 
 | Component | Logic / Control | Target Parameter |
 | :--- | :--- | :--- |
 | **Prompt Field** | Textarea + Auto-Complete | `prompt` |
 | **Batch Size** | Slider (1-4) | `batch_size` |
-| **Resolution** | Sliders (512 - 2048) | `width`, `height` |
-| **Guidance** | Slider + Guidance Chip (Tooltip) | `guidance_scale` (Baseline: 1.0) |
+| **Resolution** | Sliders (512 - 2048) + Wheel-Reactive | `width`, `height` |
+| **Guidance** | Slider + Wheel-Reactive + Dynamic Chip (Tooltip) | `guidance_scale` (Baseline: 1.0) |
+| **Inference Steps** | Numeric Input + Chevrons + Wheel-Reactive | `num_inference_steps` |
 | **Sampler** | Custom Dropdown | `flow_euler`, `dpm++_2m`, `dpm++_2s_a`, etc. |
 | **Scheduler** | Custom Dropdown | `standard`, `karras`, `beta`, `simple` |
-| **Action** | Primary Button | `GENERATE` -> `/api/txt2img` |
+| **Seed Control** | Numeric Input + Bare Metal UI | `seed`. Modes: **RANDOM** (Infinity) / **FIXED** (Lock). |
+| **Randomize** | Square Button (24px) | Instant seed randomization. |
+| **Action** | Primary Button (Mutating State) | `RENDER` -> `/api/txt2img` |
+
+---
+
+## 🛰️ SYSTEM SHELL & FOOTER
+Structural components for environmental persistence.
+
+- **Segmented Footer**: 
+  - **Left Segment**: Built info + Heart icon (`--color-generate`).
+  - **Right Segment**: Tech stack info ("BARE METAL STACK") + Plus sign.
+  - **Logic**: Pinned to the bottom of side panels; center area remains transparent for canvas focus.
 
 ---
 

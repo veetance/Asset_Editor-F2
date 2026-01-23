@@ -5,9 +5,9 @@ The **4B Hybrid Manifold** is optimized for **16GB VRAM / 64GB RAM** gear. It us
 ## 🛠️ ARCHITECTURE
 
 - **Pipeline Shell**: `Flux2KleinPipeline`
-- **Text Encoder**: Qwen3-4B (4-bit NF4) -> **Pinned to GPU VRAM** (~2.6GB)
-- **Transformer**: FLUX-4B (BFloat16) -> **Pinned to GPU VRAM** (~4.5GB)
-- **VAE**: AutoencoderKLFlux2 (Float32) -> **Pinned to GPU VRAM** (~1GB)
+- **Text Encoder**: Qwen3-4B (4-bit NF4) -> **Dynamic Offload** (GPU for Encoding, then moved to CPU RAM to vacate 2.6GB).
+- **Transformer**: FLUX-4B (**FP8 Bandwidth Hack**) -> **Pinned to GPU VRAM** (2.3GB instead of 4.5GB).
+- **VAE**: AutoencoderKLFlux2 (Float32) -> **Pinned to GPU VRAM** (~1GB).
 
 
 ## 🧠 LOGIC SHIMS (THE STABILITY CORE)

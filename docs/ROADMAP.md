@@ -58,12 +58,14 @@
 - [ ] **Pattern Migration**: Applying SMP and managed offloading to 9B Safetensors.
 - [ ] **Precision Calibration**: Finalize FP8 weighting for 9B Sovereign.
 - [ ] **VAE / Text Encoder verification**: Quality check at peak fidelity.
+- [ ] **REPA Integration**: Investigate Representation Alignment weights for 1-step "Instant Inference."
 
 ### Deep Speed Protocol (High Risk / High Reward)
 - [ ] **Sage Attention 3.0**: Compile `triton-windows` and inject math kernels.
-- [ ] **Fusion Strategy**: Implement `torch.compile(mode='reduce-overhead')` to leverage CUDA Graphs.
+- [ ] **Fusion Strategy**: Implement `torch.compile(mode='reduce-overhead')` to leverage CUDA Graphs. (Blocked: Triton installation).
 - [ ] **Golden Workflow**: Implement Load -> Sage -> Sample -> Compile execution order.
-- [ ] **Prompt Caching**: Implement smart skip logic for repeated prompts.
+- [x] **FP8 Bandwidth Hack**: Halved Transformer transfer time (~2s). *[LOCKED IN 4B]*
+- [x] **Prompt Caching**: Logic ready; TE encoding bypass.
 
 ## � PHASE 7: CANVAS & EDITING (STABILIZED)
 - [x] **Universal Carrier**: Deployed polymorphic dispatcher (SCM/Managed/Qwen) for modelagnostic execution.
@@ -73,6 +75,13 @@
 - [x] **Sovereign Boot Ritual**: High-fidelity branded splash screen with "Pink Layer" physics sync.
 - [x] **Local Sovereign Repo**: Migrating all 9B components (FP8 Safetensors, VAE, Text Encoder) to managed storage.
 - [ ] PSD Layer Export integration.
+
+## ✅ PHASE 7.1: UI FINALIZATION & BARE METAL POLISH (LOCKED)
+- [x] **Segmented Footer**: Purged global footer for panel-pinned components.
+- [x] **Bare Metal Seed UI**: Replaced "Capsule" toggles with square 24px icon-only controls.
+- [x] **Semantic Iconography**: Switched Pin icon to **Lock** for Fixed seed mode.
+- [x] **Visual Stabilization**: Calibrated Infinity icon scale (14px) for weight parity.
+- [x] **Clean DNA**: Purged 40+ lines of redundant CSS logic.
 
 ## 🟪 PHASE 7: LOCAL BRAIN (RETRAINING)
 - [ ] Implement AI-Toolkit / OneTrainer bridge for local LoRA synthesis.

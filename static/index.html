@@ -125,37 +125,95 @@
 
             <div class="field">
               <label class="field-label">Inference Steps</label>
-              <div class="slider-wrap">
-                <input type="range" class="slider" id="genSteps" min="1" max="30" step="1" value="10">
-                <span class="slider-value" id="genStepsValue">10</span>
+              <div class="steps-wrap">
+                <div class="steps-input-group">
+                  <input type="number" class="input-steps" id="genSteps" value="4" min="1" max="50" step="1">
+                  <div class="steps-arrows">
+                    <button class="steps-arrow-btn" id="stepsInc">
+                      <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        stroke-width="4">
+                        <path d="m18 15-6-6-6 6" />
+                      </svg>
+                    </button>
+                    <button class="steps-arrow-btn" id="stepsDec">
+                      <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        stroke-width="4">
+                        <path d="m6 9 6 6 6-6" />
+                      </svg>
+                    </button>
+                  </div>
+                </div>
               </div>
             </div>
             <div class="field">
               <label class="field-label">Width</label>
               <div class="slider-wrap">
-                <input type="range" class="slider" id="genWidth" min="512" max="2048" step="128" value="1024">
-                <span class="slider-value" id="genWidthValue">1024</span>
+                <input type="range" class="slider" id="genWidth" min="512" max="2048" step="128" value="768">
+                <span class="slider-value" id="genWidthValue">768</span>
               </div>
             </div>
             <div class="field">
               <label class="field-label">Height</label>
               <div class="slider-wrap">
-                <input type="range" class="slider" id="genHeight" min="512" max="2048" step="128" value="1024">
-                <span class="slider-value" id="genHeightValue">1024</span>
+                <input type="range" class="slider" id="genHeight" min="512" max="2048" step="128" value="768">
+                <span class="slider-value" id="genHeightValue">768</span>
+              </div>
+            </div>
+            <div class="field">
+              <label class="field-label">Seed Control</label>
+              <div class="seed-wrap">
+                <div class="seed-input-group">
+                  <input type="number" class="input-seed" id="genSeed" value="-1" step="1">
+                  <div class="seed-arrows">
+                    <button class="seed-arrow-btn" id="seedInc">
+                      <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        stroke-width="4">
+                        <path d="m18 15-6-6-6 6" />
+                      </svg>
+                    </button>
+                    <button class="seed-arrow-btn" id="seedDec">
+                      <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        stroke-width="4">
+                        <path d="m6 9 6 6 6-6" />
+                      </svg>
+                    </button>
+                  </div>
+                </div>
+                <button id="shuffleSeedBtn" class="seed-shuffle-btn" title="Randomize">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                    <path d="M21 16V8a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2z" />
+                    <path d="M7 12h10" />
+                    <path d="M10 9l-3 3 3 3" />
+                    <path d="M14 15l3-3-3-3" />
+                  </svg>
+                </button>
+                <div class="seed-mode-container">
+                  <button class="seed-mode-toggle" id="genSeedMode" data-value="random" title="Toggle Mode">
+                    <!-- Random (Infinity) -->
+                    <svg class="icon-random" width="14" height="14" viewBox="0 0 24 24" fill="none"
+                      stroke="currentColor" stroke-width="2">
+                      <path d="M12 12c-2-2.3-4-5-7-5s-5 2.5-5 5 2 5 5 5 2.7-1 5-2.7" />
+                      <path d="M12 12c2 2.3 4 5 7 5s5-2.5 5-5-2-5-5-5-2.7 1-5 2.7" />
+                    </svg>
+                    <!-- Fixed (Lock) -->
+                    <svg class="icon-fixed hidden" width="14" height="14" viewBox="0 0 24 24" fill="none"
+                      stroke="currentColor" stroke-width="2">
+                      <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                      <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                    </svg>
+                  </button>
+                  <div class="seed-toast" id="seedToast">RANDOM</div>
+                </div>
               </div>
             </div>
             <div class="field field-guidance">
-              <label class="field-label">Guidance</label>
+              <label class="field-label">PROMPT ADHERENCE</label>
               <div class="slider-wrap">
-                <input type="range" class="slider" id="genGuidance" min="1.0" max="5.0" step="0.5" value="3.5">
-                <span class="slider-value" id="genGuidanceValue">3.5</span>
+                <input type="range" class="slider" id="genGuidance" min="0.0" max="5.0" step="0.5" value="0.0">
+                <span class="slider-value" id="genGuidanceValue">0.0</span>
               </div>
               <!-- Guidance Chip (Contextual Tooltip) -->
               <div id="canvasChip" class="guidance-chip hidden">
-                <div class="chip-main">
-                  <span class="chip-label">GUIDANCE:</span>
-                  <span class="chip-value" id="chipValue">0.0</span>
-                </div>
                 <div id="chipDesc" class="chip-description"></div>
               </div>
             </div>
@@ -329,10 +387,15 @@
 
         <!-- Sticky Action Button -->
         <div class="panel-action">
-          <button class="btn btn-primary btn-block" id="generateBtn">GENERATE</button>
+          <button class="btn btn-primary btn-block" id="generateBtn">RENDER</button>
           <button class="btn btn-primary btn-block hidden" id="stylizeBtn">STYLIZE</button>
           <button class="btn btn-primary btn-block hidden" id="decomposeBtn">DECOMPOSE</button>
           <button class="btn btn-primary btn-block hidden" id="editBtn">APPLY EDIT</button>
+        </div>
+
+        <!-- Panel Footer (Left) -->
+        <div class="panel-footer footer-left-content">
+          © 2026 VEETANCE DESIGN
         </div>
       </aside>
 
@@ -340,7 +403,7 @@
       <section class="canvas-area">
         <!-- Tabs at top of canvas -->
         <nav class="canvas-tabs">
-          <button class="tab active" data-mode="generate">Generate</button>
+          <button class="tab active" data-mode="generate">Create</button>
           <button class="tab" data-mode="stylize">Stylize</button>
           <button class="tab" data-mode="decompose">Decompose</button>
           <button class="tab" data-mode="edit">Edit</button>
@@ -360,19 +423,31 @@
           </div>
           <div class="panel-buffer" style="height: 100px;"></div>
         </div>
+        <!-- Panel Footer (Right) -->
+        <div class="panel-footer footer-right-content">
+          BUILT WITH
+          <svg class="heart-icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+            stroke-width="2">
+            <path
+              d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z">
+            </path>
+          </svg>
+          <span class="plus-sign">+</span>
+          <strong>BARE METAL STACK</strong>
+        </div>
       </aside>
     </main>
-  </div>
 
-  <script src="scripts/canvas-stack.js?v=2"></script>
-  <script src="scripts/masking.js?v=2"></script>
-  <script src="scripts/animations.js?v=2"></script>
-  <script src="scripts/prompts.js?v=2"></script>
-  <script src="scripts/viewport.js?v=2"></script>
-  <script src="scripts/comparison.js?v=2"></script>
 
-  <!-- Modular Architecture -->
-  <script type="module" src="scripts/main.js"></script>
+    <script src="scripts/canvas-stack.js?v=15"></script>
+    <script src="scripts/masking.js?v=15"></script>
+    <script src="scripts/animations.js?v=15"></script>
+    <script src="scripts/prompts.js?v=15"></script>
+    <script src="scripts/viewport.js?v=15"></script>
+    <script src="scripts/comparison.js?v=15"></script>
+
+    <!-- Modular Architecture -->
+    <script type="module" src="scripts/main.js?v=15"></script>
 </body>
 
 </html>

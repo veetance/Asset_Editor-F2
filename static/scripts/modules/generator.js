@@ -24,23 +24,49 @@ export const Generator = {
         const scheduler = document.getElementById('genScheduler').dataset.value;
         const vramBudget = State.vramUserLimit || 16.0;
 
-        State.showStatus('Generating...', 'loading');
+        // Seed Logic
+        const seedInput = document.getElementById('genSeed');
+        const seedMode = document.getElementById('genSeedMode').dataset.value;
+        let seed = parseInt(seedInput.value);
+
+        if (seedMode === 'random') {
+            seed = Math.floor(Math.random() * 2147483647);
+            seedInput.value = seed;
+        } else if (seedMode === 'increment') {
+            seed = seed + 1;
+            seedInput.value = seed;
+        } else if (seedMode === 'decrement') {
+            seed = seed - 1;
+            seedInput.value = seed;
+        }
+
+        State.showStatus('Rendering...', 'loading');
+
+        // Button Feedback
+        const btn = document.getElementById('generateBtn');
+        const originalText = btn.textContent;
+        btn.textContent = 'RENDERING...';
+        btn.disabled = true;
+
         const targetModel = State.loadedModel || 'flux-4b';
-        console.log(`[GENERATOR] Target: ${targetModel} | Prompt: ${prompt.slice(0, 30)}... | Steps: ${steps}`);
+        console.log(`[RENDERER] Target: ${targetModel} | Prompt: ${prompt.slice(0, 30)}... | Steps: ${steps} | Seed: ${seed}`);
         if (window.GenerationAnim) window.GenerationAnim.start();
 
         try {
-            const res = await API.txt2img(prompt, width, height, guidance, sampler, scheduler, vramBudget, targetModel, steps);
+            const res = await API.txt2img(prompt, width, height, guidance, sampler, scheduler, vramBudget, targetModel, steps, seed);
             if (window.CanvasStack) {
                 window.CanvasStack.clear();
                 window.CanvasStack.addLayer(res.image, 0);
             }
-            State.showStatus(`Generated using ${res.model || 'FLUX'} (${res.vram_used}GB VRAM)`);
+            State.showStatus(`Rendered using ${res.model || 'FLUX'} (${res.vram_used}GB VRAM)`);
         } catch (e) {
             console.error(e);
-            State.showStatus('Generation Failed', 'error');
+            State.showStatus('Render Failed', 'error');
         } finally {
             if (window.GenerationAnim) window.GenerationAnim.stop();
+            // Restore Button
+            btn.textContent = originalText;
+            btn.disabled = false;
         }
     },
 

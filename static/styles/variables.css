@@ -30,6 +30,38 @@
   --color-edit: #f59e0b;
   /* Amber - modification/change */
 
+
+  /* PURBLE PRIMARY AND ITS SHADES */
+  --Purble100: hsl(239, 84%, 67%);
+  --Purble80: hsl(239, 39%, 49%);
+  --Purble60: hsl(239, 38%, 31%);
+  --Purble40: hsl(238, 38%, 18%);
+  --Purble20: hsl(236, 36%, 9%);
+
+  /* PINK PRIMARY AND ITS SHADES */
+  --Pink100: hsl(329, 84%, 67%);
+  --Pink80: hsl(329, 39%, 49%);
+  --Pink60: hsl(329, 38%, 31%);
+  --Pink40: hsl(328, 38%, 18%);
+  --Pink20: hsl(326, 36%, 9%);
+
+  /* AMBER PRIMARY AND ITS SHADES */
+  --Amber100: hsl(38, 92%, 50%);
+  --Amber80: hsl(38, 50%, 55%);
+  --Amber60: hsl(38, 39%, 41%);
+  --Amber40: hsl(38, 38%, 28%);
+  --Amber20: hsl(38, 36%, 9%);
+
+  /* EMERALD PRIMARY AND ITS SHADES */
+  --Emerald100: hsl(145, 84%, 67%);
+  --Emerald80: hsl(145, 39%, 49%);
+  --Emerald60: hsl(145, 38%, 31%);
+  --Emerald40: hsl(144, 38%, 18%);
+  --Emerald20: hsl(142, 36%, 9%);
+
+
+
+  /* GLOW COLORS */
   --color-generate-glow: rgba(99, 102, 241, 0.15);
   --color-generate-glow-strong: rgba(99, 102, 241, 0.35);
   --color-stylize-glow: rgba(236, 72, 153, 0.15);

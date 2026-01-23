@@ -1,0 +1,107 @@
+/* Panel Footer Styles (Pinned to bottom of panels) */
+.panel-footer {
+    height: 40px;
+    width: 100%;
+    background: var(--bg-primary);
+    border-top: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    padding: 0 16px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    color: #444;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    flex-shrink: 0;
+    opacity: 0.8;
+}
+
+.footer-left-content {
+    justify-content: flex-start;
+}
+
+.footer-right-content {
+    justify-content: flex-end;
+    gap: 6px;
+}
+
+.footer-right-content strong {
+    color: #666;
+    font-weight: 700;
+}
+
+.heart-icon {
+    color: var(--color-generate);
+    /* Branded Indigo */
+    stroke-width: 2px;
+}
+
+.plus-sign {
+    font-size: 11px;
+    /* Slightly larger + */
+    font-weight: 700;
+    color: #555;
+    margin: 0 2px;
+}
+
+/* Seed Toggle & Toast */
+.seed-mode-container {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+/* Bare Metal Toggle */
+.seed-mode-toggle {
+    background: transparent;
+    border: none;
+    color: #666;
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border-radius: 0;
+    padding: 0;
+}
+
+.seed-mode-toggle:hover {
+    color: var(--color-generate);
+    transform: scale(1.1);
+}
+
+.seed-mode-toggle svg {
+    pointer-events: none;
+}
+
+.seed-toast {
+    position: absolute;
+    top: -28px;
+    left: 50%;
+    transform: translateX(-50%) translateY(4px);
+    background: var(--color-generate);
+    color: #fff;
+    padding: 4px 8px;
+    font-size: 10px;
+    font-weight: 700;
+    font-family: 'Inter', sans-serif;
+    letter-spacing: 0.05em;
+    pointer-events: none;
+    opacity: 0;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    white-space: nowrap;
+    z-index: 1000;
+    border-radius: 2px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.seed-toast.visible {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+}
+
+.hidden {
+    display: none !important;
+}

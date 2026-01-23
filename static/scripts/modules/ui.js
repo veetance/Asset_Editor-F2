@@ -11,7 +11,174 @@ export const UI = {
         this.initFileUpload();
         this.initToggles();
         this.initGovernor();
+        this.initSeedControl();
+        this.initStepsControl();
+        this.initWheelControls();
         this.syncFromState();
+    },
+
+    initWheelControls() {
+        // Handle Numeric Inputs (Steps, Seed)
+        const numericWraps = ['.seed-input-group', '.steps-input-group'];
+        numericWraps.forEach(selector => {
+            const wrap = document.querySelector(selector);
+            if (!wrap) return;
+
+            wrap.addEventListener('wheel', (e) => {
+                const input = wrap.querySelector('input');
+                if (!input) return;
+
+                e.preventDefault();
+                e.stopPropagation();
+
+                const delta = e.deltaY > 0 ? -1 : 1;
+                let val = parseInt(input.value) || 0;
+
+                // Special handling for Seed mode
+                if (input.id === 'genSeed') {
+                    const modeToggle = document.getElementById('genSeedMode');
+                    this.updateSeedMode(modeToggle, 'fixed');
+                    input.value = val + delta;
+                } else if (input.id === 'genSteps') {
+                    input.value = Math.max(1, Math.min(50, val + delta));
+                } else {
+                    input.value = val + delta;
+                }
+
+                // Trigger change event for any listeners
+                input.dispatchEvent(new Event('input'));
+            }, { passive: false });
+        });
+
+        // Handle Sliders (Width, Height, Adherence, Strength, etc.)
+        document.querySelectorAll('.slider-wrap').forEach(wrap => {
+            wrap.addEventListener('wheel', (e) => {
+                const slider = wrap.querySelector('input[type="range"]');
+                if (!slider) return;
+
+                e.preventDefault();
+                e.stopPropagation();
+
+                const step = parseFloat(slider.step) || 1;
+                const delta = e.deltaY > 0 ? -step : step;
+                const min = parseFloat(slider.min);
+                const max = parseFloat(slider.max);
+
+                let val = parseFloat(slider.value) + delta;
+                slider.value = Math.max(min, Math.min(max, val));
+
+                // Trigger change event
+                slider.dispatchEvent(new Event('input'));
+
+                // If it's the Guidance slider, we need to handle the chip specifically 
+                // because the mouseenter handler might not be active if purely scrolling
+                if (slider.id === 'genGuidance') {
+                    const chip = document.getElementById('canvasChip');
+                    if (chip) {
+                        chip.classList.remove('hidden');
+                        this.updateGuidanceHint(parseFloat(slider.value));
+                    }
+                }
+            }, { passive: false });
+        });
+    },
+
+    initSeedControl() {
+        const seedInput = document.getElementById('genSeed');
+        const shuffleBtn = document.getElementById('shuffleSeedBtn');
+        const modeBtn = document.getElementById('genSeedMode');
+        const incBtn = document.getElementById('seedInc');
+        const decBtn = document.getElementById('seedDec');
+
+        const setMode = (mode) => {
+            this.updateSeedMode(modeBtn, mode);
+        };
+
+        if (shuffleBtn) {
+            shuffleBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                const newSeed = Math.floor(Math.random() * 2147483647);
+                seedInput.value = newSeed;
+                // Force mode to Fixed when shuffling manually
+                setMode('fixed');
+            });
+        }
+
+        if (modeBtn) {
+            modeBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const current = modeBtn.dataset.value;
+                const next = (current === 'random') ? 'fixed' : 'random';
+                setMode(next);
+            });
+        }
+
+        if (incBtn) {
+            incBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                seedInput.value = parseInt(seedInput.value) + 1;
+                setMode('fixed');
+            });
+        }
+
+        if (decBtn) {
+            decBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                seedInput.value = Math.max(0, parseInt(seedInput.value) - 1);
+                setMode('fixed');
+            });
+        }
+    },
+
+    initStepsControl() {
+        const stepsInput = document.getElementById('genSteps');
+        const incBtn = document.getElementById('stepsInc');
+        const decBtn = document.getElementById('stepsDec');
+
+        if (incBtn) {
+            incBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                stepsInput.value = Math.min(50, parseInt(stepsInput.value) + 1);
+            });
+        }
+
+        if (decBtn) {
+            decBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                stepsInput.value = Math.max(1, parseInt(stepsInput.value) - 1);
+            });
+        }
+    },
+
+    updateSeedMode(btn, mode) {
+        if (!btn) return;
+        btn.dataset.value = mode;
+
+        // Icon Toggling
+        const iconRandom = btn.querySelector('.icon-random');
+        const iconFixed = btn.querySelector('.icon-fixed');
+
+        if (mode === 'random') {
+            if (iconRandom) iconRandom.classList.remove('hidden');
+            if (iconFixed) iconFixed.classList.add('hidden');
+        } else {
+            if (iconRandom) iconRandom.classList.add('hidden');
+            if (iconFixed) iconFixed.classList.remove('hidden');
+        }
+
+        // Toast Feedback
+        const toast = document.getElementById('seedToast');
+        if (toast) {
+            toast.textContent = mode.toUpperCase();
+            toast.classList.add('visible');
+
+            // Clear previous timer if exists
+            if (btn._toastTimer) clearTimeout(btn._toastTimer);
+
+            btn._toastTimer = setTimeout(() => {
+                toast.classList.remove('visible');
+            }, 1500);
+        }
     },
 
     syncFromState() {
@@ -51,7 +218,6 @@ export const UI = {
         bind('editStrength', 'editStrengthValue', v => `${v}%`);
         bind('genWidth', 'genWidthValue');
         bind('genHeight', 'genHeightValue');
-        bind('genSteps', 'genStepsValue');
 
 
         // Guidance Special Logic
@@ -65,7 +231,6 @@ export const UI = {
                 if (gVal) gVal.textContent = v.toFixed(1);
                 if (chip) {
                     chip.classList.remove('hidden');
-                    document.getElementById('chipValue').textContent = v.toFixed(1);
                     this.updateGuidanceHint(v);
                 }
             };
@@ -80,10 +245,10 @@ export const UI = {
         if (!hintEl) return;
         let tip = "", desc = "";
 
-        if (val <= 1.5) { tip = "Photorealistic:"; desc = "Maximum realism, natural imperfections."; }
-        else if (val <= 3.0) { tip = "Standard:"; desc = "Balanced adherence."; }
-        else if (val <= 4.0) { tip = "Distilled:"; desc = "Ideal Flux State."; }
-        else { tip = "Stylized:"; desc = "Force strict adherence."; }
+        if (val <= 1.0) { tip = "Loose:"; desc = "Photoreal focus."; }
+        else if (val <= 3.0) { tip = "Balanced:"; desc = "Standard prompt."; }
+        else if (val <= 4.0) { tip = "Distilled:"; desc = "Optimal Flux State."; }
+        else { tip = "Strict:"; desc = "Aggressive enforcement."; }
 
         hintEl.innerHTML = `<span class="guidance-tip">${tip}</span> ${desc}`;
     },

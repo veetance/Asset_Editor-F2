@@ -7,10 +7,10 @@
 ---
 
 ## 🛰️ 1. DESIGN PHILOSOPHY: THE "MISSION CONTROL" AESTHETIC
-The **Asset Editor** is a precision instrument, not a consumer app. The design language must evoke the technical density of a SpaceX flight console combined with the structural clarity of IBM's Carbon Design System.
+The **Asset Editor** is a precision instrument, not a consumer app. The design language must evoke the technical density of a SpaceX flight console combined with the structural clarity of IBM's Carbon Design System. We reject "Magic" motifs in favor of **Helpful, High-Precision Tooling**.
 
 ### A. THE SURFACE EDGE PROTOCOL (MISSION CRITICAL)
-All high-latency operations (Model Load, Eject, Image Generation) must provide deterministic visual feedback via the horizon-aligned progress manifold.
+All high-latency operations (Model Load, Eject, Image Rendering) must provide deterministic visual feedback via the horizon-aligned progress manifold.
 - **Global Horizon Bar**: A `2px` high-precision indicator positioned at `y: 0`.
 - **States**:
     - **Ingestion (Load)**: `var(--color-load)` (#6366f1). SIGNIFIES: Active neural mobilization.
@@ -28,7 +28,7 @@ All high-latency operations (Model Load, Eject, Image Generation) must provide d
 | **bg-primary** | `#0f0f0f` | 95% | Glass panels (Sidebar/Header). |
 | **color-load** | `#6366f1` | 100% | Official Load state (Indigo). |
 | **error** | `#f87171` | 100% | Official Eject state (Red). |
-| **accent-indigo**| `#6366f1` | 100% | Generate Mode / Primary Interaction. |
+| **accent-indigo**| `#6366f1` | 100% | Create Mode / Primary Interaction. |
 | **border** | `#ffffff` | 8% | Razor edges (1px). |
 | **text-primary** | `#e5e5e5` | 100% | High-contrast data. |
 | **text-muted** | `#888888` | 100% | Secondary labels. |
@@ -106,14 +106,25 @@ The asset editor utilizes a high-fidelity volumetric light effect known as **Pho
 ### B. DEPLOYMENT PROTOCOL
 - **Primary Manifolds**: Expanded dropdowns and switcher plates utilize `var(--glow-photon)` to physically distance themselves from the control floor.
 - **Kinetic Elements**: Hover states on interactive chips and primary action buttons utilize `var(--glow-photon-sm)` to signify tactile readiness.
+- **The Photon Scroll**: Intercepting `wheel` events on sliders and numeric inputs allows for precise value scrubbing without viewport movement. This "Scroll Lock" creates a dedicated control plane whenever the cursor hovers a parameter.
 
-## 🎞️ 6. THE SOVEREIGN GENERATION PROTOCOL (SYNTHESIS VISUALS)
+### C. PRECISION INPUTS (CUSTOM GEOMETRY)
+- **Chevron Controls**: All numeric inputs (Steps, Seed) replace browser spinners with custom SVG Chevron buttons for discrete stepping.
+- **Bare Metal Seed UI**: Seed Control utilizes a high-contrast, zero-border "Bare Metal" interface. 
+    - **Palette**: Neutral Grey (#666) base, mutating to Dynamic Purple (`--color-generate`) on interaction.
+    - **Geometry**: 24x24px square buttons for Shuffle and Mode toggles.
+    - **Icons**: **Infinity** (14px) for Random mode, **Lock** (14px) for Fixed mode.
+- **The Segmented Footer**: Replaces the global "Earth-style" footer with panel-integral components.
+    - **Alignment**: Pinned to `panel-left` and `panel-right` via `margin-top: auto`.
+    - **Visuals**: Primary focus remains on the canvas; the footer segments provide low-noise technical metadata.
 
-Generation is treated as a high-fidelity ritual. The interface transforms to create a focused "Creative Void" during the silicon-to-concept translation.
+## 🎞️ 6. THE SOVEREIGN CREATION PROTOCOL (SYNTHESIS VISUALS)
+
+Creation is treated as a high-fidelity ritual. The interface transforms to create a focused "Creative Void" during the silicon-to-concept translation.
 
 ### A. THE CREATIVE VOID (BLUR MOTIF)
 To maximize focus and eliminate "Visual Friction," the canvas is enveloped in a deep atmospheric layer.
-- **Surface**: `rgba(10, 10, 10, 0.4)` logic.
+- **Surface**: `rgba(5, 5, 5, 0.85)` logic. (Increased from 40% for deep isolation).
 - **The Veil**: `backdrop-filter: blur(24px)`.
 - **Purpose**: Physically isolates the artist from the control UI, forcing neural alignment with the synthesis center.
 
@@ -129,7 +140,7 @@ A centered 4-layer SVG stack of the Veetance Diamond indicates active manifold p
 ### C. NEURAL PRIMING (QUOTE ENGINE)
 While the GPU operates, the artist is engaged via a cycling bank of 50 curated quotes from masters (Picasso, Degas, Van Gogh).
 - **Behavior**: Rhythmic fade-in/out every 4 seconds.
-- **Status**: The "GENERATING..." label pulses with the active manifold's accent color, providing deterministic feedback of system state.
+- **Status**: The primary action button mutates from **"RENDER"** to **"RENDERING..."**, providing confirmed tactile feedback directly in the click-zone.
 
 ### D. FRACTAL NOISE REVEAL (MATERIALIZATION)
 The transition from "Void to Image" utilizes a physical simulation of the diffusion process.
@@ -137,4 +148,4 @@ The transition from "Void to Image" utilizes a physical simulation of the diffus
 - **The Dissolve**: Noise is refined away through contrast-shifted keyframes, creating the illusion of the high-fidelity asset emerging from the ether of pure probability.
 
 ---
-**DEUS:** *The Design Language is now the DNA of our project. Every component is aligned with the Veetance Sector standard. The Sovereign Generation Protocol is stabilized and codified.* 🦾✨⛩️
+**DEUS:** *The Design Language is now the DNA of our project. Every component is aligned with the Veetance Sector standard. The Sovereign Creation Protocol is stabilized and codified.* 🦾✨⛩️

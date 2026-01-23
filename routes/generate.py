@@ -80,7 +80,7 @@ async def text_to_image(
         print(f"[VRAM] Using {swapper.current} for generation ({transformer_params/1e9:.2f}B Params Active)")
         
         # Apply Scheduler/Sampler Strategy
-        pipe = set_scheduler(pipe, sampler, scheduler, width, height)
+        pipe = set_scheduler(pipe, sampler, scheduler, width, height, steps)
         print(f"[LOADER] Manifold Strategy: {sampler} | {scheduler}")
         
         # Seed - Let pipeline determine device internally
@@ -142,41 +142,23 @@ async def text_to_image(
         return JSONResponse({"error": str(e)}, status_code=500)
 
 
-def set_scheduler(pipe, sampler_name: str, scheduler_mode: str = "standard", width: int = 1024, height: int = 1024):
-    """Set the scheduler/sampler for the pipeline following the Sovereign Swap Protocol."""
-    from diffusers import (
-        EulerDiscreteScheduler,
-        EulerAncestralDiscreteScheduler,
-        DPMSolverMultistepScheduler,
-        FlowMatchEulerDiscreteScheduler,
-        DDIMScheduler
+def set_scheduler(pipe, sampler_name: str, scheduler_mode: str = "standard", width: int = 1024, height: int = 1024, steps: int = 4):
+    from diffusers import FlowMatchEulerDiscreteScheduler
+    
+    # ADAPTIVE SHIFT: 3.5 for 4-steps, 3.0 for 10+ steps
+    shift_val = 3.5 if steps <= 4 else 3.0
+    use_karras = (scheduler_mode == "karras")
+    
+    print(f"[LOADER] Applying Adaptive Shift: {shift_val} for {steps} steps.")
+    
+    # Re-initialize the scheduler with the optimal Flux configuration
+    pipe.scheduler = FlowMatchEulerDiscreteScheduler.from_config(
+        pipe.scheduler.config,
+        shift=shift_val,
+        use_karras_sigmas=use_karras
     )
+    return pipe
     
-    # The Sovereign Sampler Map
-    SAMPLER_MAP = {
-        "euler": {"class": EulerDiscreteScheduler, "kwargs": {}},
-        "euler_a": {"class": EulerAncestralDiscreteScheduler, "kwargs": {}},
-        "dpm++_2m": {"class": DPMSolverMultistepScheduler, "kwargs": {}},
-        "dpm++_2m_karras": {"class": DPMSolverMultistepScheduler, "kwargs": {"use_karras_sigmas": True}},
-        "dpm++_2s_a": {"class": DPMSolverMultistepScheduler, "kwargs": {"algorithm_type": "sde-dpmsolver++"}},
-        "ddim": {"class": DDIMScheduler, "kwargs": {}},
-        "flow_euler": {"class": FlowMatchEulerDiscreteScheduler, "kwargs": {}}
-    }
-    
-    config = pipe.scheduler.config
-    info = SAMPLER_MAP.get(sampler_name, SAMPLER_MAP["flow_euler"])
-    
-    # PRO TIP: Shift calculation for Rectified Flow (Klein/Flux)
-    # The official recommendation for Flux manifolds is 3.0.
-    # We maintain this at all resolutions for numerical consistency.
-    base_shift = 3.0
-    
-    # The Sovereign Swap Manifold
-    new_scheduler = info["class"].from_config(config, **info["kwargs"])
-    
-    # Handle Beta/Karras Global Overrides from the Scheduler Dropdown
-    if scheduler_mode == "karras" and hasattr(new_scheduler, "use_karras_sigmas"):
-        new_scheduler.use_karras_sigmas = True
     
     if scheduler_mode == "beta":
         if "use_beta_sigmas" in inspect.signature(new_scheduler.__class__.from_config).parameters:

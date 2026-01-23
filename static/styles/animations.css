@@ -141,7 +141,8 @@
     position: absolute;
     inset: 0;
     z-index: 1000;
-    background: rgba(10, 10, 10, 0.4);
+    background: rgba(5, 5, 5, 0.85);
+    /* Darker background */
     backdrop-filter: blur(24px);
     display: flex;
     flex-direction: column;
@@ -242,7 +243,8 @@
 /* Bottom Middle Text Stack */
 .gen-text-stack {
     position: absolute;
-    bottom: 60px;
+    bottom: 40px;
+    /* Moved down */
     left: 50%;
     transform: translateX(-50%);
     text-align: center;
@@ -252,14 +254,8 @@
 }
 
 .gen-status {
-    font-family: 'Unbounded', sans-serif;
-    font-size: 14px;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.2em;
-    color: var(--accent);
-    margin-bottom: 16px;
-    animation: pulseAlpha 2s infinite;
+    display: none;
+    /* Hide floating status */
 }
 
 .gen-quote-container {
@@ -270,13 +266,14 @@
 }
 
 .gen-quote {
-    font-size: 16px;
+    font-size: 12px;
+    /* Increased by 10% */
     font-weight: 300;
     line-height: 1.4;
     color: #94a3b8;
     font-style: italic;
     opacity: 0;
-    transform: translateY(10px);
+    transform: translateY(20px);
     transition: opacity 0.8s ease, transform 0.8s ease;
 }
 

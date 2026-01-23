@@ -22,7 +22,7 @@ const PromptBank = {
         "Dark fantasy castle on a cliff during lightning storm",
         "Minimalist product shot of premium headphones on marble",
         "Surreal desert landscape with floating geometric shapes",
-        "Photorealistic wolf portrait with piercing blue eyes",
+        "Photoreal wolf portrait with piercing blue eyes",
         "Art deco poster design for a luxury hotel in gold and black",
         "Mystical forest with glowing mushrooms and fairy lights",
         "High-end wristwatch macro shot with water droplets"

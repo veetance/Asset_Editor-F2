@@ -1,4 +1,18 @@
-# 🏁 SESSION RECAP & HANDOFF (2026-01-22)
+# 🏁 SESSION RECAP & HANDOFF (2026-01-23)
+
+## 🦾 THE VICTORIES: UI MODULARITY & BARE METAL DESIGN
+This session focused on the "Bare Metal" philosophy—stripping away visual clutter and optimizing the interface for technical focus.
+
+### 1. THE SEGMENTED FOOTER (Layout Win)
+- **Problem**: The global footer felt monolithic and occupied unnecessary vertical real estate across the entire viewport.
+- **Solution**: Decomposed the footer into two independent components pinned to the side panels.
+- **Result**: The middle canvas area is now 100% transparent at the bottom, increasing visual "breathability" and alignment with the sidebar structure.
+
+### 2. BARE METAL SEED UI (The Precision Win)
+- **Geometry**: Enforced **24x24px Square** constraints for all seed controls (Shuffle & Toggle).
+- **Iconography**: Migrated to a **Lock/Infinity** semantic pair. Scaled Infinity by -10% for perfect visual stabilization.
+- **Palette**: Stripped all "White" states. Controls now live in a **Grey (#666) -> Purple (Branded)** sequence.
+- **Entropy Purge**: Deleted redundant legacy CSS definitions, consolidating the control stack.
 
 ## 🦾 THE VICTORIES: STABILITY & AESTHETICS
 This session focused on transforming the project from a "Crashing Prototype" into a "Sovereign Artistic Instrument." We stabilized the neural backbone and codified the project's visual DNA.
@@ -22,53 +36,35 @@ This session focused on transforming the project from a "Crashing Prototype" int
 ---
 
 ## 🛰️ TECHNICAL MANIFEST (WHAT CHANGED)
-- **`core/loaders/flux_4b.py`**: Integrated `BitsAndBytesConfig` (4-bit) and `device_map="cuda:0"`.
-- **`core/carrier.py`**: Disabled VAE tiling (speed) and cleaned up `pooled_prompt_embeds` (quality).
+- **`core/loaders/flux_4b.py`**: Integrated `BitsAndBytesConfig` (4-bit) and **Bandwidth Hack (FP8)**.
+- **`core/carrier.py`**: Implemented strict **Transformer-Offload protocol** to solve VAE chokes and silenced Accelerate warnings.
 - **`core/vram.py`**: Increased RAM Governor limit to **50GB** for full 64GB utilization.
 - **`routes/generate.py`**: Calibrated VRAM telemetry constants (8.1GB base).
-- **`docs/pipelines/flux-4b.md`**: Updated with "Sovereign Reduce" architecture.
+- **`docs/pipelines/flux-4b.md`**: Updated with "Sovereign Reduce" & "Deep Speed" architecture.
 
 
 ## ⚠️ CRITICAL RESOLUTION (PHASE 5.5)
-**Issue**: 4B Generation was **SLOW (222s)** and **LOW QUALITY**.
-- **Performance Fix**:
-    - **Quantization**: Converted Qwen Text Encoder to **4-bit (NF4)** (8GB -> 2.6GB VRAM).
-    - **Velocity**: Disabled VAE Tiling/Slicing (<2s Decode).
-    - **Regression**: Locked Device Map to `cuda:0` to prevent CPU fallback.
-    - **Result**: **<70s Total Generation Time**.
-- **Quality Fix**:
-    - **Cause**: Mismatched signature (`pooled_prompt_embeds` passed to Qwen-only pipeline).
-    - **Solution**: Reverted to standard signature while maintaining GPU residency.
-    - **Result**: Crystalline output.
-- **Status**: **SOLVED**.
-- **UI Configuration**:
-    - **Guidance Scale**: Defaulted to **3.5** (Distilled Sweet Spot) with 1.0-5.0 range.
-    - **Inference Steps**: Replaced Batch Size with Steps (Default **10**, Max **30**).
-    - **Viewport**: Cleaned legacy canvas icons for maximum focus.
+**Issue**: 4B Generation was **STALLING (136s)** and **VAE CHOKING (75s)**.
+- **Deep Speed Fixes**:
+    - **Bandwidth Hack**: Converted Transformer to **FP8** (~4.3s -> **1.2s** Mobilization).
+    - **Silicon Hygiene**: Enforced Transformer-Offload *before* VAE decode (**75s -> <2s** Decode).
+    - **Result**: **~20-30s Total Generation Time (512px)**.
+- **Quality Fix**: Verified crystalline output with standard Flux2 signature.
+- **Status**: **LOCKED & VERIFIED**.
 
 
 ## NEXT HORIZON (SESSION 3)
 ### 1. The 9B Frontier
-- **Objective:** Port the "Sovereign Reduce" protocol to the 9B pipeline.
+- **Objective:** Port the "Deep Speed" and "Sovereign Reduce" protocols to the 9B pipeline.
 - **Challenge:** 9B Transformer is ~18GB (BF16). Must assume 4-bit/8-bit Quantization is mandatory.
 
-### 2. DEEP SPEED PROTOCOL (Planned Optimizations)
-We have identified three "clever" vectors for obtaining more speed without quality loss:
+### 2. PENDING OPTIMIZATIONS
+We have identified the final vectors for obtaining more speed:
 
 #### A. Prompt Caching (The Repeater)
 - **Logic:** The Text Encoder (Qwen 4B) takes ~2-3s to run.
 - **Optimization:** If `prompt == last_prompt`, skip the encoder. Reuse `prompt_embeds`.
 - **Gain:** Instant start for "Same Prompt, New Seed" iterations.
-
-#### B. Torch Compile (The Fusion)
-- **Logic:** `torch.compile(pipe.transformer)` fuses memory kernels.
-- **Optimization:** Enable `mode="reduce-overhead"`.
-- **Gain:** Potential 15-20% inference speedup after "warmup" run.
-
-#### C. FP8 Transformer (The Bandwidth Hack)
-- **Logic:** Loading the Transformer in FP8 (instead of BF16) cuts its VRAM size in half (5GB -> 2.5GB).
-- **Optimization:** Reduces VRAM bandwidth pressure.
-- **Gain:** ~10-15% speedup on bandwidth-bound GPUs.
 
 ### 3. EXPERIMENTAL DEEP SPEED (HIGH RISK)
 The following optimizations are **Windows-Hostile** and require precise surgery.
@@ -82,9 +78,12 @@ The following optimizations are **Windows-Hostile** and require precise surgery.
     3.  **Risk:** High probability of dependency hell or "Black Image" output if versions drift.
 - **Gain:** 2x-3x speedup in Attention blocks (if successful).
 
-#### E. Torch Compile Fusion
-- **Constraint:** Windows PyTorch Compiler support is still maturing in 2026.
-- **Risk:** Can conflict with custom Sage kernels, causing graph breaks.
+#### B. Torch Compile (The Fusion)
+- **Logic:** `torch.compile(pipe.transformer)` fuses memory kernels.
+- **Optimization:** Enable `mode="reduce-overhead"`.
+- **Constraint:** Requires **Triton** (Windows-hostile).
+- **Status:** **DEFERRED** (Blocked by Triton installation).
+- **Gain:** Potential 15-20% inference speedup.
 
 #### F. The "Golden Workflow" (Pipeline Order)
 Derived from high-performance ComfyUI logic. **MUST EXECUTE IN THIS EXACT ORDER**:

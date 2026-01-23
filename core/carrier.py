@@ -25,124 +25,133 @@ class SovereignCarrier:
             print(f"[CARRIER] Unknown manifold {model_id}. Using Managed Fallback.")
             return self.execute_flux_managed(pipe, **kwargs)
 
-    @staticmethod
-    def execute_flux_4b(pipe, prompt, device="cuda", **kwargs):
+    # CACHE LAYER (Static Class Variables)
+    _last_prompt = None
+    _last_embeds = None
+    _last_pooled = None
+
+    @classmethod
+    def execute_flux_4b(cls, pipe, prompt, device="cuda", **kwargs):
         """
-        Engages the 4B Sequential Manifold (SCM Protocol).
-        Optimized for 16GB VRAM: TE-CPU, TR/VAE-GPU.
+        Engages the 4B Sovereign Speed Manifold.
+        Optimized for 16GB VRAM: Full Residency + Prompt Caching.
         """
         import time
         t0 = time.time()
-        print("[CARRIER] Engaging 4B Sequential Manifold (SCM Protocol)...")
+        print("[CARRIER] Engaging 4B Sovereign Speed Manifold...")
         
-        # 1. Mobilize Text Encoder to Silicon
-        t_te_start = time.time()
-        print("[BRAIN] Mobilizing Text Encoder to Silicon...")
-        pipe.text_encoder.to(device)
-        torch.cuda.synchronize() # Force sync to catch lazy loading
-        print(f"[PROFILE] TE Transfer Time (Synced): {time.time() - t_te_start:.2f}s")
-        print(f"[DEBUG] TE Device: {pipe.text_encoder.device}, Components Dtype: {pipe.text_encoder.dtype}")
-        
-        # 2. Sovereign Ignition: Encode Prompt
-        t_enc_start = time.time()
-        print("[BRAIN] Encoding prompt on GPU (Sovereign Ignition)...")
-        try:
-            with torch.no_grad():
-                # Note: encode_prompt returns (prompt_embeds, pooled_prompt_embeds)
-                prompt_embeds, pooled_prompt_embeds = pipe.encode_prompt(
-                    prompt=prompt,
-                    device=torch.device(device)
-                )
+        # 1. BRAIN RESIDENCY: Keep everything on GPU
+        # We only move if absolutely necessary (first run)
+        if pipe.text_encoder.device.type != "cuda":
+            print("[BRAIN] Pinning Text Encoder to Silicon...")
+            from accelerate.hooks import remove_hook_from_module
+            remove_hook_from_module(pipe.text_encoder, recurse=True)
+            pipe.text_encoder.to(device)
+            
+        if pipe.transformer.device.type != "cuda":
+            print("[BRAIN] Pinning Transformer to Silicon (Standby: FP8)...")
+            # Move and enforce FP8 to ensure we fit in the 16GB bucket along with other components
+            pipe.transformer.to(device=device, dtype=torch.float8_e4m3fn)
+            
+        if pipe.vae.device.type != "cuda":
+            # Just verify logic, we will move it during decode
+            pipe.vae.disable_tiling()
+            pipe.vae.disable_slicing()
+        else:
+            # Move to CPU to clear space for Inference
+            pipe.vae.to("cpu")
+            torch.cuda.empty_cache()
 
+        torch.cuda.synchronize()
 
-            torch.cuda.synchronize() # Force sync to measure true encoding time
-            print(f"[PROFILE] Prompt Encoding Time (Synced): {time.time() - t_enc_start:.2f}s")
-            print("[BRAIN] Encoding successful. Tensors materialized.")
-        except Exception as e:
-            print(f"[ERROR] Sovereign encoding failure: {e}")
-            raise e
-        finally:
-            # 3. Brain Residency: Keep Text Encoder on GPU for speed
-            # We removed the offload logic to eliminate the 28s penalty.
-            pass
+        # 2. PROMPT CACHING LAYER
+        if prompt == cls._last_prompt and cls._last_embeds is not None:
+            print("[BRAIN] Prompt Cache Hit. Skipping encoding pass.")
+            prompt_embeds = cls._last_embeds
+            pooled_prompt_embeds = cls._last_pooled
+            # Safety: Ensure TE is offloaded even on cache hits if it was left there
+            if pipe.text_encoder.device.type == "cuda":
+                pipe.text_encoder.to("cpu")
+                torch.cuda.empty_cache()
+        else:
+            print("[BRAIN] Prompt Cache Miss. Executing Sovereign Ignition...")
+            t_enc_start = time.time()
+            try:
+                with torch.no_grad():
+                    prompt_embeds, pooled_prompt_embeds = pipe.encode_prompt(
+                        prompt=prompt,
+                        device=torch.device(device)
+                    )
+                torch.cuda.synchronize()
+                print(f"[PROFILE] Prompt Encoding Time: {time.time() - t_enc_start:.2f}s")
+                
+                # Update Cache
+                cls._last_prompt = prompt
+                cls._last_embeds = prompt_embeds
+                cls._last_pooled = pooled_prompt_embeds
 
+                # TRITON FIX: Offload TE back to CPU immediately to free ~2.6GB
+                # This prevents hitting the 16GB limit and triggering Shared Memory slowness.
+                print("[BRAIN] Vacating Text Encoder silicon to provide inference headroom...")
+                pipe.text_encoder.to("cpu")
+                torch.cuda.empty_cache()
 
-        # 4. Mobilize Synthesis Components (Transformer & VAE)
-        t_tr_start = time.time()
-        print("[CARRIER] Mobilizing Transformer & VAE to Silicon...")
-        pipe.transformer.to(device)
-        # Note: VAE is moved during decode, but let's prep it
-        pipe.vae.to(device)
-        print(f"[PROFILE] Transformer Transfer Time: {time.time() - t_tr_start:.2f}s")
-        
-        # 5. Silicon Checksum: Ensure inputs are precisely on device
+            except Exception as e:
+                print(f"[ERROR] Encoding failure: {e}")
+                raise e
+
+        # 3. Silicon Checksum
         prompt_embeds = prompt_embeds.to(device, dtype=torch.bfloat16)
         pooled_prompt_embeds = pooled_prompt_embeds.to(device, dtype=torch.bfloat16)
 
-
-        # 6. Ignite Transformer
-        print("[CARRIER] Vectors verified. Igniting Transformer...")
+        # 4. Sovereign Execution
+        print("[CARRIER] Executing Inference Loop...")
+        t_inf_start = time.time()
         
-        # STORE REFS
+        # Protect components
         _te = pipe.text_encoder
         _tok = pipe.tokenizer
+        pipe.text_encoder = None
+        pipe.tokenizer = None
 
         try:
-            # SILICON SATURATION: Total Device Enforcement
-            # We iterate and force every single buffer and parameter to CUDA
-            print("[CARRIER] Executing Silicon Saturation...")
-            pipe.transformer.to(device)
-            
-            # DETACH CPU COMPONENTS
-            # This forces the pipeline to detect 'device' from the Transformer (GPU)
-            # preventing the "Expected all tensors to be on same device" error.
-            print("[CARRIER] Detaching Text Encoder for Sovereign Execution...")
-            pipe.text_encoder = None
-            pipe.tokenizer = None
+            # SILICON BREATHING: Expand to BF16 for math
+            print("[BRAIN] Expanding Transformer to BF16 for high-velocity math...")
+            pipe.transformer.to(dtype=torch.bfloat16)
+            torch.cuda.synchronize()
 
-            # DECOUPLED EXECUTION PROTOCOL
-            # 1. Generate Latents (BFloat16)
-            t_inf_start = time.time()
             with torch.inference_mode():
                 latents = pipe(
                     prompt=None,
                     prompt_embeds=prompt_embeds,
-                    # pooled_prompt_embeds=pooled_prompt_embeds, # Removed to fix TypeError
                     output_type="latent",
                     return_dict=False,
                     **kwargs
                 )[0]
-
-
+            torch.cuda.synchronize()
             print(f"[PROFILE] Inference Time: {time.time() - t_inf_start:.2f}s")
             
-            print("[CARRIER] Latents generated. Executing Precision Cast (BF16 -> FP32)...")
+            # SILICON BREATHING: Contract back to FP8 to vacate space for VAE
+            print("[BRAIN] Contracting Transformer to FP8 to vacate silicon...")
+            pipe.transformer.to(dtype=torch.float8_e4m3fn)
+            torch.cuda.empty_cache()
             
-            # 2. Precision Cast
-            # The VAE is in float32 for stability. We must cast the latents before entry.
-            latents = latents.detach().to(dtype=torch.float32)
-            
-            # 3. Manual Decode
+            # 5. Precision Decode (Direct GPU)
             t_dec_start = time.time()
-            print("[CARRIER] Decoding with High-Precision VAE...")
-            
-            # VAE ACCELERATION: Force VAE to Silicon
+            print("[CARRIER] Mobilizing VAE for Decode (Silicon)...")
             pipe.vae.to(device)
-            pipe.vae.disable_tiling()
-            pipe.vae.disable_slicing()
             torch.cuda.synchronize()
-
             
+            print("[CARRIER] Decoding Latents...")
+            latents = latents.detach().to(dtype=torch.float32)
             image = pipe.vae.decode(latents, return_dict=False)[0]
             image = image.detach()
             image = pipe.image_processor.postprocess(image, output_type="pil")
             torch.cuda.synchronize()
             print(f"[PROFILE] VAE Decode Time: {time.time() - t_dec_start:.2f}s")
             
-            print(f"[PROFILE] Total Pipeline Time: {time.time() - t0:.2f}s")
+            print(f"[PROFILE] Total Sovereign Time: {time.time() - t0:.2f}s")
 
-            # 4. Construct Result Object
-            # We need to return an object with an .images attribute to satisfy the route handler
             class Result:
                 def __init__(self, images):
                     self.images = images
@@ -150,16 +159,9 @@ class SovereignCarrier:
             return Result(image)
 
         finally:
-            # RESTORE COMPONENTS
             pipe.text_encoder = _te
             pipe.tokenizer = _tok
-
-            # 7. Atomic Cleanup: Purge all temporary synthesis tensors
-            print("[CARRIER] Synthesis complete. Vacating Silicon...")
-            del prompt_embeds
-            if 'latents' in locals(): del latents
-            torch.cuda.empty_cache()
-            gc.collect()
+            # No offload. No Vacate. Pure Residency.
 
     @staticmethod
     def execute_flux_managed(pipe, **kwargs):

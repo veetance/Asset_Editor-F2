@@ -40,7 +40,7 @@ const ComparisonSlider = {
         this.container.addEventListener('mousemove', updatePosition);
 
         // Expansion icons
-        document.getElementById('copyPromptBtn').addEventListener('click', () => {
+        document.getElementById('copyPromptBtn')?.addEventListener('click', () => {
             const prompt = document.querySelector('.mode-controls:not(.hidden) .textarea')?.value;
             if (prompt) {
                 navigator.clipboard.writeText(prompt);
@@ -48,7 +48,7 @@ const ComparisonSlider = {
             }
         });
 
-        document.getElementById('expandCanvasBtn').addEventListener('click', () => {
+        document.getElementById('expandCanvasBtn')?.addEventListener('click', () => {
             document.querySelector('.app').classList.toggle('focus-mode');
         });
     },
