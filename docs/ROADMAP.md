@@ -44,8 +44,8 @@
 ## ✅ PHASE 5.5: 4B STABILIZATION & OPTIMIZATION (COMPLETED)
 
 - [x] **Pipeline Stress-Test**: Validating 4B hybrid manifold against 16GB VRAM limit.
-- [ ] **Leak Audit**: Final memory profiling to ensure zero-growth RAM footprint.
-- [ ] **Knowledge Transfer**: Documenting 4B architecture patterns for 9B migration.
+- [x] **Leak Audit**: Final memory profiling to ensure zero-growth RAM footprint.
+- [x] **Knowledge Transfer**: Documenting 4B architecture patterns for 9B migration.
 - [x] **Optimization**: Implemented "Sovereign Reduce" protocol (Quantized TE + No Tiling). Performance: 52s -> 118s (Regression) -> 70s (Fixed).
     - **Quality**: Fixed `pooled_embeds` mismatched signature.
     - **Speed**: In-memory caching + VRAM pinning.
@@ -53,9 +53,16 @@
 
 
 ## 🟦 PHASE 6: 9B SOVEREIGN EVOLUTION (PENDING)
+### Core Objectives
 - [ ] **Pattern Migration**: Applying SMP and managed offloading to 9B Safetensors.
 - [ ] **Precision Calibration**: Finalize FP8 weighting for 9B Sovereign.
 - [ ] **VAE / Text Encoder verification**: Quality check at peak fidelity.
+
+### Deep Speed Protocol (High Risk / High Reward)
+- [ ] **Sage Attention 3.0**: Compile `triton-windows` and inject math kernels.
+- [ ] **Fusion Strategy**: Implement `torch.compile(mode='reduce-overhead')` to leverage CUDA Graphs.
+- [ ] **Golden Workflow**: Implement Load -> Sage -> Sample -> Compile execution order.
+- [ ] **Prompt Caching**: Implement smart skip logic for repeated prompts.
 
 ## � PHASE 7: CANVAS & EDITING (STABILIZED)
 - [x] **Universal Carrier**: Deployed polymorphic dispatcher (SCM/Managed/Qwen) for modelagnostic execution.
