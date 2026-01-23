@@ -124,10 +124,10 @@
             </div>
 
             <div class="field">
-              <label class="field-label">Batch Size</label>
+              <label class="field-label">Inference Steps</label>
               <div class="slider-wrap">
-                <input type="range" class="slider" id="genBatchSize" min="1" max="4" step="1" value="1">
-                <span class="slider-value" id="genBatchSizeValue">1</span>
+                <input type="range" class="slider" id="genSteps" min="1" max="30" step="1" value="10">
+                <span class="slider-value" id="genStepsValue">10</span>
               </div>
             </div>
             <div class="field">
@@ -147,8 +147,8 @@
             <div class="field field-guidance">
               <label class="field-label">Guidance</label>
               <div class="slider-wrap">
-                <input type="range" class="slider" id="genGuidance" min="0" max="10" step="0.5" value="1">
-                <span class="slider-value" id="genGuidanceValue">1.0</span>
+                <input type="range" class="slider" id="genGuidance" min="1.0" max="5.0" step="0.5" value="3.5">
+                <span class="slider-value" id="genGuidanceValue">3.5</span>
               </div>
               <!-- Guidance Chip (Contextual Tooltip) -->
               <div id="canvasChip" class="guidance-chip hidden">
@@ -348,19 +348,6 @@
         <div id="canvasContainer" class="canvas-container">
           <div id="canvasStackWrapper" class="canvas-stack-wrapper"></div>
           <div class="comparison-handle" id="comparisonHandle" style="display: none;"></div>
-          <div class="canvas-focus-controls hidden" id="focusControls">
-            <button class="focus-btn" id="copyPromptBtn" title="Copy Prompt">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
-                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
-              </svg>
-            </button>
-            <button class="focus-btn" id="expandCanvasBtn" title="Focus Mode">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"></path>
-              </svg>
-            </button>
-          </div>
         </div>
       </section>
 

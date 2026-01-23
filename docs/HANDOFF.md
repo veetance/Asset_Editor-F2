@@ -41,6 +41,10 @@ This session focused on transforming the project from a "Crashing Prototype" int
     - **Solution**: Reverted to standard signature while maintaining GPU residency.
     - **Result**: Crystalline output.
 - **Status**: **SOLVED**.
+- **UI Configuration**:
+    - **Guidance Scale**: Defaulted to **3.5** (Distilled Sweet Spot) with 1.0-5.0 range.
+    - **Inference Steps**: Replaced Batch Size with Steps (Default **10**, Max **30**).
+    - **Viewport**: Cleaned legacy canvas icons for maximum focus.
 
 
 ## NEXT HORIZON (SESSION 3)

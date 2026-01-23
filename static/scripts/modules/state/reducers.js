@@ -20,6 +20,9 @@ export const rootReducer = (state, action) => {
         case 'SET_CANNY':
             return { ...state, cannyEdges: action.payload };
 
+        case 'UPDATE_GUIDANCE_SCALE':
+            return { ...state, guidanceScale: Number(action.payload) };
+
         default:
             return state;
     }
@@ -30,5 +33,7 @@ export const initialState = {
     sourceFile: null,
     cannyEdges: false,
     vramUserLimit: 8,
-    loadedModel: null
+    loadedModel: null,
+    guidanceScale: 3.5, // FLUX.2 Klein Distilled Sweet Spot
+    inferenceSteps: 20
 };

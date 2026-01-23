@@ -19,17 +19,18 @@ export const Generator = {
         const width = parseInt(document.getElementById('genWidth').value);
         const height = parseInt(document.getElementById('genHeight').value);
         const guidance = parseFloat(document.getElementById('genGuidance').value);
+        const steps = parseInt(document.getElementById('genSteps').value);
         const sampler = document.getElementById('genSampler').dataset.value;
         const scheduler = document.getElementById('genScheduler').dataset.value;
         const vramBudget = State.vramUserLimit || 16.0;
 
         State.showStatus('Generating...', 'loading');
         const targetModel = State.loadedModel || 'flux-4b';
-        console.log(`[GENERATOR] Target: ${targetModel} | Prompt: ${prompt.slice(0, 30)}...`);
+        console.log(`[GENERATOR] Target: ${targetModel} | Prompt: ${prompt.slice(0, 30)}... | Steps: ${steps}`);
         if (window.GenerationAnim) window.GenerationAnim.start();
 
         try {
-            const res = await API.txt2img(prompt, width, height, guidance, sampler, scheduler, vramBudget, targetModel);
+            const res = await API.txt2img(prompt, width, height, guidance, sampler, scheduler, vramBudget, targetModel, steps);
             if (window.CanvasStack) {
                 window.CanvasStack.clear();
                 window.CanvasStack.addLayer(res.image, 0);

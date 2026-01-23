@@ -46,9 +46,10 @@
 - [x] **Pipeline Stress-Test**: Validating 4B hybrid manifold against 16GB VRAM limit.
 - [x] **Leak Audit**: Final memory profiling to ensure zero-growth RAM footprint.
 - [x] **Knowledge Transfer**: Documenting 4B architecture patterns for 9B migration.
-- [x] **Optimization**: Implemented "Sovereign Reduce" protocol (Quantized TE + No Tiling). Performance: 52s -> 118s (Regression) -> 70s (Fixed).
+- [x] **Optimization**: Implemented "Sovereign Reduce" protocol (Quantized TE + No Tiling).
     - **Quality**: Fixed `pooled_embeds` mismatched signature.
-    - **Speed**: In-memory caching + VRAM pinning.
+    - **Speed**: In-memory caching + VRAM pinning. Performance: ~70s.
+- [x] **Experience**: UI tuned for Distilled Flux (Guidance 3.5, 10 Steps). Removed legacy focus controls for crystalline viewport.
 - [x] **Experience**: Integrated "Generation In Progress" animation and telemetry.
 
 

@@ -51,7 +51,7 @@ export const UI = {
         bind('editStrength', 'editStrengthValue', v => `${v}%`);
         bind('genWidth', 'genWidthValue');
         bind('genHeight', 'genHeightValue');
-        bind('genBatchSize', 'genBatchSizeValue');
+        bind('genSteps', 'genStepsValue');
 
 
         // Guidance Special Logic
@@ -80,12 +80,10 @@ export const UI = {
         if (!hintEl) return;
         let tip = "", desc = "";
 
-        if (val === 0) { tip = "Schnell:"; desc = "Optimized for distilled models."; }
-        else if (val <= 2.0) { tip = "Creative:"; desc = "Ignores prompt slightly."; }
-        else if (val <= 3.5) { tip = "Artistic:"; desc = "Balanced flow."; }
-        else if (val <= 5.0) { tip = "Balanced:"; desc = "Sweet spot."; }
-        else if (val <= 7.5) { tip = "Literal:"; desc = "Strict adherence."; }
-        else { tip = "Strict:"; desc = "Risk of frying."; }
+        if (val <= 1.5) { tip = "Photorealistic:"; desc = "Maximum realism, natural imperfections."; }
+        else if (val <= 3.0) { tip = "Standard:"; desc = "Balanced adherence."; }
+        else if (val <= 4.0) { tip = "Distilled:"; desc = "Ideal Flux State."; }
+        else { tip = "Stylized:"; desc = "Force strict adherence."; }
 
         hintEl.innerHTML = `<span class="guidance-tip">${tip}</span> ${desc}`;
     },

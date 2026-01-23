@@ -25,12 +25,13 @@ export const API = {
         return this.request('/decompose', { method: 'POST', body: formData });
     },
 
-    async txt2img(prompt, width = 1024, height = 1024, guidance = 0.0, sampler = 'euler', scheduler = 'standard', vramBudget = 16.0, modelVariant = 'flux-4b') {
+    async txt2img(prompt, width = 1024, height = 1024, guidance = 0.0, sampler = 'euler', scheduler = 'standard', vramBudget = 16.0, modelVariant = 'flux-4b', steps = 20) {
         const formData = new FormData();
         formData.append('prompt', prompt);
         formData.append('width', width);
         formData.append('height', height);
         formData.append('guidance', guidance);
+        formData.append('steps', steps);
         formData.append('sampler', sampler);
         formData.append('scheduler', scheduler);
         formData.append('vram_budget', vramBudget);
