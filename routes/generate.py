@@ -49,7 +49,7 @@ async def text_to_image(
     scheduler: str = Form(default="standard"),
     seed: int = Form(default=-1),
     model_variant: str = Form(default="flux-4b"), # Explicit Steering
-    vram_budget: float = Form(default=16.0)
+    vram_budget: float = Form(default=14.5)
 ):
     """Generate image from text prompt using FLUX.2-Klein."""
     from model_manager import swapper
@@ -108,33 +108,36 @@ async def text_to_image(
                 num_inference_steps=steps,
                 generator=generator
             )
-            
-            # Save
-            session_id = str(uuid.uuid4())[:8]
-            session_dir = OUTPUTS_DIR / session_id
-            session_dir.mkdir(parents=True, exist_ok=True)
-            
-            output_path = session_dir / "generated.png"
-            result.images[0].save(output_path)
-            
-            # Sanitization Protocol: Purge silicon immediately
-            del result
-            torch.cuda.empty_cache()
-            import gc
-            gc.collect()
-
-            return JSONResponse({
-                "session_id": session_id,
-                "image": f"/outputs/{session_id}/generated.png",
-                "seed": seed,
-                "sampler": sampler,
-                "model": swapper.current,
-                "vram_used": estimated_vram
-            })
         except torch.cuda.OutOfMemoryError:
             print("[VRAM] CRITICAL: Silicon Exhaustion. Triggering Emergency Purge.")
             swapper.offload_current(hard_purge=True)
             return JSONResponse({"error": "VRAM Exhaustion. Manifold Reset."}, status_code=507)
+        
+        # Save
+        session_id = str(uuid.uuid4())[:8]
+        session_dir = OUTPUTS_DIR / session_id
+        session_dir.mkdir(parents=True, exist_ok=True)
+        
+        output_path = session_dir / "generated.png"
+        result.images[0].save(output_path)
+        # Sanitization Protocol: Purge silicon immediately
+        del result
+        torch.cuda.empty_cache()
+        import gc
+        gc.collect()
+
+        return JSONResponse({
+            "session_id": session_id,
+            "image": f"/outputs/{session_id}/generated.png",
+            "seed": seed,
+            "sampler": sampler,
+            "model": swapper.current,
+            "vram_used": estimated_vram
+        })
+    except torch.cuda.OutOfMemoryError:
+        print("[VRAM] CRITICAL: Silicon Exhaustion. Triggering Emergency Purge.")
+        swapper.offload_current(hard_purge=True)
+        return JSONResponse({"error": "VRAM Exhaustion. Manifold Reset."}, status_code=507)
     except Exception as e:
         import traceback
         print(f"[ERROR] txt2img failed: {e}")
@@ -152,19 +155,18 @@ def set_scheduler(pipe, sampler_name: str, scheduler_mode: str = "standard", wid
     print(f"[LOADER] Applying Adaptive Shift: {shift_val} for {steps} steps.")
     
     # Re-initialize the scheduler with the optimal Flux configuration
-    pipe.scheduler = FlowMatchEulerDiscreteScheduler.from_config(
+    new_scheduler = FlowMatchEulerDiscreteScheduler.from_config(
         pipe.scheduler.config,
         shift=shift_val,
         use_karras_sigmas=use_karras
     )
+    pipe.scheduler = new_scheduler
     return pipe
     
     
     if scheduler_mode == "beta":
-        if "use_beta_sigmas" in inspect.signature(new_scheduler.__class__.from_config).parameters:
-            new_scheduler = new_scheduler.__class__.from_config(config, use_beta_sigmas=True)
-        elif hasattr(new_scheduler, "config") and "beta" in new_scheduler.config:
-            new_scheduler = new_scheduler.__class__.from_config(config, use_beta_sigmas=True)
+        # Beta scheduling (if needed in future)
+        pass
 
     # SHIM: Parameter Filtering for universal compatibility
     original_set_timesteps = new_scheduler.set_timesteps

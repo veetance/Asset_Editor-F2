@@ -30,9 +30,6 @@ The **4B Sequential Alpha Protocol** is the sovereign logic optimized for **16GB
 
 ### 1. Sequential Silicon Migration scheme
 Instead of fitting *everything* in VRAM (8GB+4GB+2GB), we fit *nothing* permanently.
-1. **TE** -> GPU -> Encode -> **CPU**
-2. **TR** -> GPU -> Denoise -> **CPU**
-3. **VAE** -> GPU -> Decode -> **CPU**
 
 ### 2. Flux2KleinPipeline Signature Fix
 - **Patch**: Removed `pooled_prompt_embeds` from the pipeline call to align with the installed Diffusers signature.

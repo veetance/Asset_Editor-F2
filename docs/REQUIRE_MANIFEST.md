@@ -8,7 +8,6 @@ Inject these into your `venv` to weaponize the engine:
 - `torch`, `torchvision`, `torchaudio`: The neural backbone.
 - `diffusers`: The generative manifold (Requires `diffusers-dev` or source installation for Qwen-Layered support).
 - `transformers`, `accelerate`: The attention engine.
-- `huggingface_hub`: For weight injection.
 - `safetensors`, `gguf`: For high-speed weight serialization.
 - `xformers`: For memory-efficient attention (40-series gear).
 - `python-multipart`: For image uploads.
@@ -25,24 +24,17 @@ To prevent boot-time scan delays (Silicon Friction), the manifold **statically s
 - **Protocol**: Static Pinning via `pkg_resources.require("nvidia-modelopt")`.
 
 ## 🚀 INITIALIZATION SEQUENCE
-1. **Prepare Venv**:
-   ```powershell
    python -m venv venv
    .\venv\Scripts\activate
    pip install -r requirements.txt
-   ```
-2. **Authenticate HF**:
-   ```powershell
-   .\venv\Scripts\python.exe -c "from huggingface_hub import login; login()"
-   ```
-3. **Inject Weights**:
-   ```powershell
+   
+2. we dont need huggingface. we have the models.
+
+3. **Inject Weights**:  
    .\venv\Scripts\python.exe download_models.py
-   ```
-4. **Ignite Engine**:
-   ```powershell
+   
    python server.py
-   ```
+   
 
 ## 🌐 NETWORK SOVEREIGNTY (AIR-GAPPED LOGIC)
 The manifold operates under a strict **Off-Cloud Protocol**. 
@@ -54,7 +46,7 @@ The manifold operates under a strict **Off-Cloud Protocol**.
 > Internet access is only requisitioned for initial model injection (`download_models.py`) or when the lead developer (MrVee) determines an update is necessary.
 
 ## 🧠 VRAM MANAGEMENT
-The engine is architected as a **Singleton Swapper**. It will offload model A to CPU before engaging model B on GPU, ensuring your 16GB manifold is never over-pressurized.
+The engine is architected as a **Singleton Swapper**. It will offload model A to RAM AND NOT THE CPU before engaging model B on GPU, ensuring your 16GB manifold is never over-pressurized. CPU IS TOO SLOW.
 
 ---
 **DEUS:** *Requirements Documented. The Factory is Aligned.* 🦾⚡

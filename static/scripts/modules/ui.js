@@ -229,6 +229,12 @@ export const UI = {
             const updateChip = () => {
                 const v = parseFloat(gSlider.value);
                 if (gVal) gVal.textContent = v.toFixed(1);
+
+                // Sync to Store
+                if (window.AppStore) {
+                    window.AppStore.dispatch({ type: 'UPDATE_GUIDANCE_SCALE', payload: v });
+                }
+
                 if (chip) {
                     chip.classList.remove('hidden');
                     this.updateGuidanceHint(v);

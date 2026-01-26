@@ -159,5 +159,26 @@ export const Models = {
         });
 
         if (!currentModel) headerName.textContent = 'MODEL';
+
+        // 4B SOVEREIGN LOCK: Guidance Redundancy Protocol
+        const is4B = currentModel && currentModel.includes('4b');
+        const guidanceField = document.querySelector('.field-guidance');
+        const guidanceSlider = document.getElementById('genGuidance');
+
+        if (guidanceField && guidanceSlider) {
+            if (is4B) {
+                console.log("[UI] 4B Manifold Detected: Locking Guidance to 1.0");
+                guidanceField.classList.add('hidden');
+                guidanceSlider.value = 1.0;
+                // Update internal state
+                if (window.AppStore) {
+                    window.AppStore.dispatch({ type: 'UPDATE_GUIDANCE_SCALE', payload: 1.0 });
+                }
+                const gVal = document.getElementById('genGuidanceValue');
+                if (gVal) gVal.textContent = "1.0";
+            } else {
+                guidanceField.classList.remove('hidden');
+            }
+        }
     }
 };
