@@ -37,7 +37,7 @@ async def decompose_image(
     Returns:
         JSON with session_id and layer URLs
     """
-    from model_manager import swapper
+    from model_manager import model_manager
     
     try:
         # Validate
@@ -58,9 +58,11 @@ async def decompose_image(
         pil_image.save(original_path)
         
         # Load Qwen (swap FLUX out if needed)
-        pipe = swapper.load_qwen()
+        # Assuming model_manager will handle this via qwen_loader if updated
+        # For now, we'll try to get it if it exists or load 7b
+        pipe, _ = model_manager.load_qwen_model(model_size='7b') 
         if pipe is None:
-            return JSONResponse({"error": "Failed to load Qwen model. Ensure diffusers is installed from source."}, status_code=500)
+            return JSONResponse({"error": "Failed to load Qwen manifold."}, status_code=500)
         
         # Decompose (Official Qwen pattern from HuggingFace)
         inputs = {

@@ -9,9 +9,7 @@ This workflow ensures that the persistent memory of the project is preserved acr
 ## Steps
 
 1. **Initialization (Start of Session)**
-   - Read `THE_NEURAL_ANCHOR.md`.
    - Read `HANDOFF.md` and all files in `docs/`.
-   - Read `progress.txt` and `prd.json`.
    - Perform a codebase health check to verify tool status.
 
 2. **Verification (Mid-Session)**

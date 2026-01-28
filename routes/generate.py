@@ -48,99 +48,65 @@ async def text_to_image(
     sampler: str = Form(default="euler"),
     scheduler: str = Form(default="standard"),
     seed: int = Form(default=-1),
-    model_variant: str = Form(default="flux-4b"), # Explicit Steering
+    model_variant: str = Form(default="flux-4b"),
     vram_budget: float = Form(default=14.5)
 ):
-    """Generate image from text prompt using FLUX.2-Klein."""
-    from model_manager import swapper
+    """Generate image from text prompt using FLUX.2-Klein Sovereign Dispatch."""
+    from model_manager import model_manager
     
-    # Identify requested variant
+    # identify requested variant
     is_9b = "9b" in model_variant.lower()
-    variant_id = "9b" if is_9b else "4b"
-    
-    # Audit Identity (Debug for singleton parity)
-    print(f"[VRAM] Swapper Identity: {hex(id(swapper))} | Target: flux-{variant_id}")
-    
-    # ========== TELEMETRY VRAM CHECK (ADVISORY ONLY) ==========
-    estimated_vram = estimate_vram_usage(width, height, is_9b)
-    if estimated_vram > vram_budget:
-        print(f"[VRAM] WARNING: Estimated {estimated_vram}GB exceeds Governor budget of {vram_budget}GB. PROCEEDING REGARDLESS.")
-    else:
-        print(f"[VRAM] Pre-Flight: Estimated {estimated_vram}GB (Budget: {vram_budget}GB) - SAFE")
+    model_size = "9b" if is_9b else "4b"
     
     try:
-        # FORCE REQUISITION of the correct variant
-        pipe = swapper.load_flux(model_variant)
-            
-        if pipe is None:
-            return JSONResponse({"error": "Failed to load FLUX model"}, status_code=500)
-        
-        # PROOF OF LIFE: Log Active Parameters
-        transformer_params = sum(p.numel() for p in pipe.transformer.parameters())
-        print(f"[VRAM] Using {swapper.current} for generation ({transformer_params/1e9:.2f}B Params Active)")
-        
-        # Apply Scheduler/Sampler Strategy
-        pipe = set_scheduler(pipe, sampler, scheduler, width, height, steps)
-        print(f"[LOADER] Manifold Strategy: {sampler} | {scheduler}")
-        
-        # Seed - Let pipeline determine device internally
+        # 1. ENSURE LOADED
+        if not model_manager.current or model_size not in model_manager.current:
+            print(f"[VRAM] Auto-Negotiating {model_size} Manifold...")
+            model_manager.load_flux_model(model_size=model_size)
+
+        # 2. GENERATE
+        # Seed logic
         if seed < 0:
-            seed = torch.randint(0, 2**32, (1,)).item()
-        generator = torch.Generator().manual_seed(seed)
+            import random
+            seed = random.randint(0, 2**32 - 1)
+
+        print(f"[CARRIER] Dispatching Sovereign Request: {width}x{height} | {steps} steps")
         
-        # Flux2KleinPipeline handles Qwen3 prompt formatting internally
-        print(f"[PROMPT] Raw: {prompt[:80]}...")
-        
-        # 6. ENFORCE SOVEREIGN EXECUTION (Carrier Layer)
-        from core.carrier import carrier
-        
-        # Determine Execution Strategy
-        try:
-            # 6. UNIVERSAL DISPATCH: Delegate execution to the Sovereign Carrier
-            # The Carrier automatically negotiates the optimal physics (SCM, Managed, or Qwen)
-            result = carrier.dispatch(
-                model_id=model_variant,
-                pipe=pipe,
-                prompt=prompt,
-                height=height,
-                width=width,
-                guidance_scale=guidance,
-                num_inference_steps=steps,
-                generator=generator
-            )
-        except torch.cuda.OutOfMemoryError:
-            print("[VRAM] CRITICAL: Silicon Exhaustion. Triggering Emergency Purge.")
-            swapper.offload_current(hard_purge=True)
-            return JSONResponse({"error": "VRAM Exhaustion. Manifold Reset."}, status_code=507)
-        
-        # Save
+        # Execute via Carrier
+        image = model_manager.generate_image_with_flux(
+            prompt=prompt,
+            height=height,
+            width=width,
+            num_inference_steps=steps,
+            guidance_scale=guidance,
+            seed=seed
+        )
+
+        # 3. PERSISTENCE
         session_id = str(uuid.uuid4())[:8]
         session_dir = OUTPUTS_DIR / session_id
         session_dir.mkdir(parents=True, exist_ok=True)
         
         output_path = session_dir / "generated.png"
-        result.images[0].save(output_path)
-        # Sanitization Protocol: Purge silicon immediately
-        del result
-        torch.cuda.empty_cache()
-        import gc
-        gc.collect()
+        image.save(output_path)
+        
+        print(f"[VRAM] Generation Cycle Complete. Image persisted to {session_id}")
 
         return JSONResponse({
             "session_id": session_id,
             "image": f"/outputs/{session_id}/generated.png",
             "seed": seed,
-            "sampler": sampler,
-            "model": swapper.current,
-            "vram_used": estimated_vram
+            "model": model_manager.current,
+            "status": "success"
         })
+
     except torch.cuda.OutOfMemoryError:
-        print("[VRAM] CRITICAL: Silicon Exhaustion. Triggering Emergency Purge.")
-        swapper.offload_current(hard_purge=True)
+        print("[VRAM] CRITICAL: Silicon Exhaustion. Purging Manifold.")
+        model_manager.clear_all_models()
         return JSONResponse({"error": "VRAM Exhaustion. Manifold Reset."}, status_code=507)
     except Exception as e:
         import traceback
-        print(f"[ERROR] txt2img failed: {e}")
+        print(f"[ERROR] Sovereign Dispatch Failed: {e}")
         traceback.print_exc()
         return JSONResponse({"error": str(e)}, status_code=500)
 
@@ -204,7 +170,7 @@ async def image_to_image(
     seed: int = Form(default=-1)
 ):
     """Transform image based on prompt."""
-    from model_manager import swapper
+    from model_manager import model_manager as swapper
     
     if swapper.current and swapper.current.startswith("flux-"):
         pipe = swapper._flux_pipe
@@ -272,7 +238,7 @@ async def inpaint_image(
     
     If use_alpha_mask=True and no mask provided, extracts mask from alpha channel.
     """
-    from model_manager import swapper
+    from model_manager import model_manager as swapper
     
     if swapper.current and swapper.current.startswith("flux-"):
         pipe = swapper._flux_pipe
