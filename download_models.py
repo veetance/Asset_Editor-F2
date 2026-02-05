@@ -5,7 +5,7 @@ from huggingface_hub import hf_hub_download
 
 # Base Directions
 BASE_MODEL_DIR = os.path.join(os.getcwd(), "models")
-SOVEREIGN_FLUX_DIR = os.path.join(BASE_MODEL_DIR, "flux-klein")
+SOVEREIGN_FLUX_DIR = os.path.join(BASE_MODEL_DIR, "flux2-klein")
 
 def requisition_component(repo, filename, target_subpath, rename_as=None):
     """Surgical Injection with High-Velocity Check."""
